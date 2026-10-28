@@ -33,7 +33,9 @@ def test_record_transactions_rollback_and_reopen(database):
     store = RecordStore(database)
     assert store.ready()
     store.put_many([("test", "retained", {"value": 1})])
-    with pytest.raises(StatementError):
+    # SQLite wraps JSON serialization; psycopg raises TypeError directly.
+    # Both must leave the earlier insert in this batch rolled back.
+    with pytest.raises((StatementError, TypeError)):
         store.put_many(
             [("test", "rolled-back", {"value": 2}), ("test", "invalid", {"bad": object()})]
         )
