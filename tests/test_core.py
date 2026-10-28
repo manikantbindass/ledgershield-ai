@@ -1,6 +1,16 @@
 from dataclasses import replace
+
 import pytest
-from ledgershield.core import Block, LedgerState, Rejected, Transaction, demo_key, public_key, merkle_root
+
+from ledgershield.core import (
+    Block,
+    LedgerState,
+    Rejected,
+    Transaction,
+    demo_key,
+    merkle_root,
+    public_key,
+)
 
 
 @pytest.fixture
@@ -10,8 +20,15 @@ def setup():
 
 
 def block(ledger, txs):
-    return Block(len(ledger.chain), ledger.chain[-1].hash, txs, "node_0", 1,
-                 ledger.chain_id, ledger.chain[0].genesis_hash)
+    return Block(
+        len(ledger.chain),
+        ledger.chain[-1].hash,
+        txs,
+        "node_0",
+        1,
+        ledger.chain_id,
+        ledger.chain[0].genesis_hash,
+    )
 
 
 def test_valid_roundtrip_and_merkle(setup):
@@ -27,13 +44,18 @@ def test_valid_roundtrip_and_merkle(setup):
     assert ledger.verify_chain()
 
 
-@pytest.mark.parametrize("mutation,code", [
-    ({"amount": -1}, "invalid_amount"), ({"amount": 1.5}, "invalid_amount"),
-    ({"amount": True}, "invalid_amount"), ({"nonce": -1}, "invalid_nonce"),
-    ({"signature": "00"}, "invalid_signature_or_identity"),
-    ({"receiver": "invalid"}, "invalid_signature_or_identity"),
-    ({"chain_id": "other"}, "wrong_chain"),
-])
+@pytest.mark.parametrize(
+    "mutation,code",
+    [
+        ({"amount": -1}, "invalid_amount"),
+        ({"amount": 1.5}, "invalid_amount"),
+        ({"amount": True}, "invalid_amount"),
+        ({"nonce": -1}, "invalid_nonce"),
+        ({"signature": "00"}, "invalid_signature_or_identity"),
+        ({"receiver": "invalid"}, "invalid_signature_or_identity"),
+        ({"chain_id": "other"}, "wrong_chain"),
+    ],
+)
 def test_invalid_transaction(setup, mutation, code):
     alice, bob, ledger = setup
     with pytest.raises(Rejected, match=code):

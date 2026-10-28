@@ -9,3 +9,5 @@
 7. Versioned typed API, local operator/admin authorization, pagination, sanitized errors, request IDs, bounded evaluations and event envelopes.
 
 Future: durable storage, authenticated API, stronger protocol modeling, real networking and independent security review. Screenshots follow the user's final phase.
+
+Phases 12–14 add layered QA, scoped type/format checks, transactional research archives/migrations, non-root container builds, readiness, optional monitoring and the developer documentation set. Real distributed consensus resumption and Internet deployment remain future work.

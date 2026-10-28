@@ -1,6 +1,6 @@
 # Backend API v1
 
-OpenAPI: `/openapi.json`; interactive docs: `/docs` and `/redoc`. State is explicitly in memory. Ledger batches execute atomically; there is no relational database, so database transactions/migrations are not claimed. Reset clears the simulator's ledger, scenarios, evidence and recovery. Restart also clears experiments. The experiment store retains the latest 100 completed evaluations.
+OpenAPI: `/openapi.json`; interactive docs: `/docs` and `/redoc`. Live simulator state is in memory. Ledger batches execute atomically. Optional SQLAlchemy/Alembic database archives retain public research records; see the archive extension below. Reset clears the simulator's ledger, scenarios, evidence and recovery. Restart also clears experiments. The experiment store retains the latest 100 completed evaluations.
 
 ## Authentication and roles
 
@@ -57,3 +57,17 @@ Limits: 60 mutations/minute per role; 3 evaluations/minute per role; one active 
 ## WebSocket events
 
 Connect to `/api/v1/ws`. Envelope: `{"type":"metrics","sequence":2,"timestamp":1,"data":{...}}`. Sequence increases per connection; timestamp is simulator tick. Snapshot supplies bounded dashboard state, then metrics follows. New alert IDs emit alert events; new/changed action statuses emit healing events. Reconnection replays currently visible latest 50 alerts/actions, not a durable log. Reset starts a new evidence set. Internal stream failures close with generic 1011. Legacy `/ws/dashboard` remains snapshot-only; legacy mutation aliases enforce the same roles.
+
+
+## Phase 9 dashboard extensions
+
+New public reads: `/auth/session` (viewer or authenticated role), `/trust/history` (paginated, exact node_id and q filters), `/audit/events` (latest 500), `/settings` (safe values), `/blocks/{height}` (payload plus integrity/certificate checks), `/learning/runs` (fixed server-owned training manifests and checkpoint metadata), `/simulation/runs` (actual bounded runs).
+
+Operator mutations: `POST /simulation/runs` starts one supported fault for 1–20 ticks; `POST /simulation/runs/{run_id}/stop` restores fault settings and is idempotent after completion. `POST /policies/compare` runs isolated no-healing/rule/DQN comparisons with shared seeds, up to 4 episodes and 20 steps each. Existing evaluation lock and rate limits apply. Results include comparison group IDs and real environment/reward configuration. All existing role checks remain enforced.
+
+Block, transaction, alert, healing-action and experiment lists accept server-side q filters. Snapshots add service instance ID, real metric history (240 samples), partition links, active scenario and recent events. Recovery records expose proposal mode, approval requirement and guard results captured at execution. See DASHBOARD.md for scope and lifecycle details.
+
+
+## Archive and health extensions
+
+GET /live reports process liveness; GET /ready checks chain integrity and the configured archive/schema. Optional DATABASE_URL enables transactional public snapshots, audit/healing records and experiments. GET /api/v1/archive/{snapshot,event,healing,experiment} reads up to 1000 archived rows through pagination. Completed experiment listings reload on restart; live collections stay in_memory and start a new paused simulation. Database write failure returns sanitized 503 archive_unavailable, pauses the loop and warns that the action may have completed in memory. No distributed memory/database atomicity is claimed. Migrate explicitly before startup.

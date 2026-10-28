@@ -1,7 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend import api
+from backend.main import app
 
 ADMIN = "test-admin-" + "a" * 40
 OPERATOR = "test-operator-" + "b" * 40
@@ -22,9 +23,23 @@ def post(client, path, body=None, headers=None):
     return client.post(PREFIX + path, json=body or {}, headers=headers or ADMIN_HEADERS)
 
 
-@pytest.mark.parametrize("path", ["/health", "/metrics", "/network/overview", "/network/state",
-                                  "/nodes", "/nodes/node_0", "/blocks", "/transactions", "/alerts",
-                                  "/trust/scores", "/healing/actions", "/experiments"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/health",
+        "/metrics",
+        "/network/overview",
+        "/network/state",
+        "/nodes",
+        "/nodes/node_0",
+        "/blocks",
+        "/transactions",
+        "/alerts",
+        "/trust/scores",
+        "/healing/actions",
+        "/experiments",
+    ],
+)
 def test_public_reads_are_backed_and_typed(client, path):
     response = client.get(PREFIX + path)
     assert response.status_code == 200
@@ -36,7 +51,9 @@ def test_public_reads_are_backed_and_typed(client, path):
         assert len(response.json()["identity"]) == 64
 
 
-@pytest.mark.parametrize("path", ["/nodes/missing", "/healing/actions/missing", "/experiments/missing"])
+@pytest.mark.parametrize(
+    "path", ["/nodes/missing", "/healing/actions/missing", "/experiments/missing"]
+)
 def test_not_found(client, path):
     response = client.get(PREFIX + path)
     assert response.status_code == 404
@@ -53,19 +70,38 @@ def test_pagination_and_query_validation(client):
     assert client.get(PREFIX + "/nodes?offset=100").json()["items"] == []
 
 
-@pytest.mark.parametrize("path", ["/simulation/start", "/simulation/stop", "/simulation/step",
-                                  "/simulation/transaction", "/simulation/scenarios", "/simulation/reset",
-                                  "/simulation/partition", "/healing/mode", "/policies/evaluate"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/simulation/start",
+        "/simulation/stop",
+        "/simulation/step",
+        "/simulation/transaction",
+        "/simulation/scenarios",
+        "/simulation/reset",
+        "/simulation/partition",
+        "/healing/mode",
+        "/policies/evaluate",
+    ],
+)
 def test_sensitive_routes_require_authentication(client, path):
     response = client.post(PREFIX + path, json={})
     assert response.status_code == 401
     assert response.headers["www-authenticate"] == "Bearer"
-    assert client.post(PREFIX + path, json={}, headers={"Authorization": "Bearer invalid"}).status_code == 401
+    assert (
+        client.post(PREFIX + path, json={}, headers={"Authorization": "Bearer invalid"}).status_code
+        == 401
+    )
 
 
 def test_rbac_and_legacy_aliases_cannot_bypass(client):
     assert post(client, "/simulation/reset", headers=OPERATOR_HEADERS).status_code == 403
-    assert post(client, "/healing/mode", {"mode": "autonomous_simulation"}, OPERATOR_HEADERS).status_code == 403
+    assert (
+        post(
+            client, "/healing/mode", {"mode": "autonomous_simulation"}, OPERATOR_HEADERS
+        ).status_code
+        == 403
+    )
     assert client.post("/simulation/step").status_code == 401
     assert client.post("/simulation/reset", json={}, headers=OPERATOR_HEADERS).status_code == 403
     assert post(client, "/simulation/start", headers=OPERATOR_HEADERS).json()["running"]
@@ -94,8 +130,18 @@ def test_malformed_input_does_not_echo_secrets(client):
     secret = "private-key-do-not-echo"
     response = post(client, "/transactions", {"signature": secret, "private_key": secret})
     assert response.status_code == 422 and secret not in response.text
-    assert post(client, "/simulation/scenarios", {"node_id": "unknown", "behavior": "honest"}).status_code == 404
-    assert post(client, "/simulation/scenarios", {"node_id": "node_1", "behavior": "other"}).status_code == 422
+    assert (
+        post(
+            client, "/simulation/scenarios", {"node_id": "unknown", "behavior": "honest"}
+        ).status_code
+        == 404
+    )
+    assert (
+        post(
+            client, "/simulation/scenarios", {"node_id": "node_1", "behavior": "other"}
+        ).status_code
+        == 422
+    )
     assert post(client, "/policies/evaluate", {"episodes": 999}).status_code == 422
     assert post(client, "/policies/evaluate", {"model_path": secret}).status_code == 422
 
@@ -120,6 +166,7 @@ def test_evaluation_records_real_isolated_results_and_rate_limits(client, monkey
 def test_sanitized_service_error_and_request_ids(client, monkeypatch):
     def broken():
         raise RuntimeError("secret-server-path-and-private-token")
+
     monkeypatch.setattr(app.state.service, "state", broken)
     response = client.get(PREFIX + "/metrics", headers={"X-Request-ID": "research-request-123"})
     assert response.status_code == 503
@@ -132,12 +179,15 @@ def test_evaluation_failure_and_concurrency_guard(client, monkeypatch):
     class BusyLock:
         def locked(self):
             return True
+
     original = app.state.evaluation_lock
     app.state.evaluation_lock = BusyLock()
     assert post(client, "/policies/evaluate", {"episodes": 1, "horizon": 1}).status_code == 409
     app.state.evaluation_lock = original
+
     def broken(_):
         raise RuntimeError("private-model-path")
+
     monkeypatch.setattr(api, "evaluate", broken)
     response = post(client, "/policies/evaluate", {"episodes": 1, "horizon": 1})
     assert response.status_code == 503 and "private-model-path" not in response.text

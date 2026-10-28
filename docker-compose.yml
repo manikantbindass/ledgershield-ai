@@ -1,4 +1,18 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ledger
+      POSTGRES_DB: ledgershield
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate local secrets with scripts/create_local_tokens.py}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger -d ledgershield"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
   backend:
     build:
       context: .
@@ -6,14 +20,68 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     environment:
-      RECOVERY_MODE: observe_only
-      LEDGERSHIELD_OPERATOR_TOKEN: ${LEDGERSHIELD_OPERATOR_TOKEN:-}
-      LEDGERSHIELD_ADMIN_TOKEN: ${LEDGERSHIELD_ADMIN_TOKEN:-}
+      DATABASE_URL: postgresql+psycopg://ledger:${POSTGRES_PASSWORD}@postgres:5432/ledgershield
+      RECOVERY_MODE: ${RECOVERY_MODE:-observe_only}
+      SIM_SEED: ${SIM_SEED:-42}
+      NODE_COUNT: ${NODE_COUNT:-6}
+      VALIDATOR_COUNT: ${VALIDATOR_COUNT:-4}
+      LEDGERSHIELD_OPERATOR_TOKEN: ${LEDGERSHIELD_OPERATOR_TOKEN:?Generate API tokens}
+      LEDGERSHIELD_ADMIN_TOKEN: ${LEDGERSHIELD_ADMIN_TOKEN:?Generate API tokens}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    init: true
+    stop_grace_period: 30s
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
   frontend:
     build: ./frontend
-    environment:
-      API_TARGET: http://backend:8000
     ports:
-      - "127.0.0.1:5173:5173"
+      - "127.0.0.1:5173:8080"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+  redis:
+    image: redis:7-alpine
+    profiles: ["cache"]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    # Reserved optional service; the current application does not depend on Redis.
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: ["monitoring"]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      backend:
+        condition: service_healthy
+  grafana:
+    image: grafana/grafana:12.1.0
+    profiles: ["monitoring"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ledger
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Generate local secrets}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: ["prometheus"]
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:

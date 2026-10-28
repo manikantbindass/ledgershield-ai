@@ -36,9 +36,17 @@ Previously named AutoLedgerAI, this project is an **educational research prototy
 | Learning | Seeded Gymnasium environment, no-healing/rule baselines, NumPy DQN with replay/target network, checkpoint save/load and held-out evaluation |
 | Dashboard | Reconnecting live stream, node scenarios, signed demo transfers, consensus/metrics, alerts, operating modes and approval journal |
 
-**Not yet implemented:** durable database records, real peer-to-peer networking, deployment identity management, complete distributed PBFT view changes, automatic DQN deployment, or validated production security. The initial findings are in the [implementation audit](docs/IMPLEMENTATION_AUDIT.md).
+**Durable archive:** configure DATABASE_URL and apply Alembic migration 0001 to retain public snapshots, healing/audit records and completed experiments. Restarts reload experiment listings but initialize a fresh paused simulator. See [setup](docs/setup-guide.md) and [deployment](docs/deployment.md).
+
+**Not yet implemented:** live distributed state persistence/resumption, real peer-to-peer networking, deployment identity management, complete distributed PBFT view changes, automatic DQN deployment, or validated production security. The initial findings are in the [implementation audit](docs/IMPLEMENTATION_AUDIT.md).
 
 **Backend v1:** typed and paginated network/ledger/evidence/recovery APIs, operator/admin authorization, request IDs, structured logs, rate-limited policy evaluation, in-memory experiments and event streams. See the [API contracts and role matrix](docs/API.md).
+
+## Complete research dashboard
+
+Ten connected pages cover Overview, Network Explorer, Blockchain Explorer, Security Center, Trust Management, Self-Healing Center, RL Lab, Simulation Lab, Experiment Reports, and Settings & Audit. Dark/light themes, responsive navigation, role-aware controls, offline/stale states, searchable histories and exact chart data share the live API. See [dashboard behavior and validation](docs/DASHBOARD.md).
+
+Simulation Lab runs bounded failure, latency, partition, suspicious-vote, Sybil-like observer and conflicting-transfer scenarios. Reports compare isolated policies on matched seeds and export actual results as JSON or CSV. RL Lab separates recorded training from checkpoint presence and the rule-based live policy.
 
 ## How the resilience loop works
 
@@ -61,18 +69,18 @@ An anomaly is an indicator, not proof of intent. Quarantine requires verified ev
 
 ## Run locally
 
-Use **Python 3.12** and **Node.js 24**. All commands start at the repository root unless a different directory is shown. The dashboard needs no database, Kafka, PyTorch or model checkpoint.
+Use **Python 3.12** and **Node.js 24**. All commands start at the repository root unless a different directory is shown. The native dashboard demo needs no database, Kafka, PyTorch or checkpoint. Default Compose includes PostgreSQL for archives.
 
 ```bash
-git clone https://github.com/manikantbindass/LedgerShield.git
-cd LedgerShield
+git clone https://github.com/manikantbindass/ledgershield-ai.git
+cd ledgershield-ai
 ```
 
 ### Windows / PowerShell
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements.lock -r requirements-dev.txt
 .\.venv\Scripts\python.exe scripts/create_local_tokens.py
 
 # Terminal 1: local simulator API
@@ -88,7 +96,7 @@ npm run dev -- --port 5173 --strictPort
 
 ```bash
 python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements.lock -r requirements-dev.txt
 .venv/bin/python scripts/create_local_tokens.py
 .venv/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
 
@@ -100,7 +108,7 @@ npm run dev -- --port 5173 --strictPort
 
 Open the [observatory](http://127.0.0.1:5173), [API documentation](http://127.0.0.1:8000/docs), or [integrity probe](http://127.0.0.1:8000/api/v1/health). Copy your locally generated operator/admin token from the ignored `.env` file into the dashboard password field. It stays only in tab memory. Admin access is required for reset, recovery mode changes and approvals.
 
-The simulator starts paused. **Start simulation** enables one background round every two wall-clock seconds; **Advance round** runs a manual round. Additional viewers do not advance the network. Vite proxies versioned HTTP/WebSocket requests to the API. Settings in [.env.example](.env.example) are optional except the tokens needed for mutations. Empty tokens disable controls. Reset returns to paused observe-only mode; restart discards all in-memory state. Keep both services bound to loopback.
+The simulator starts paused. **Start simulation** enables one background round every two wall-clock seconds; **Advance round** runs a manual round. Additional viewers do not advance the network. Vite proxies versioned HTTP/WebSocket requests to the API. Settings in [.env.example](.env.example) are optional except the tokens needed for mutations. Empty tokens disable controls. Reset returns to paused observe-only mode; restart starts a fresh paused simulator; configured database archives survive. Keep both services bound to loopback.
 
 ### Docker alternative
 
@@ -108,7 +116,7 @@ The simulator starts paused. **Start simulation** enables one background round e
 docker compose up --build
 ```
 
-Generate the local `.env` first; Compose passes API tokens to the backend. The same ports are exposed on loopback. Docker configuration is supplied; the local Python/Node workflow is the validated path for this phase.
+Generate the local `.env` first; Compose passes API tokens to the backend. The same ports are exposed on loopback. Default Compose includes PostgreSQL, migration-gated backend, built non-root nginx frontend, persistent database volumes and readiness checks. Monitoring and Redis are optional profiles. See [deployment](docs/deployment.md) for validated scope and secret handling.
 
 ## Try a controlled fault
 
@@ -148,18 +156,30 @@ From the root, with the virtual environment's Python:
 .\.venv\Scripts\python.exe -m ledgershield.learning --episodes 40 --output artifacts/experiment
 ```
 
+For the extended application-level runner, use `python -m ledgershield.experiments --seeds 22000 22001 22002 --horizon 8 --output artifacts/benchmark` after training. It measures labeled detection/recovery and network outcomes on matched scenarios with sample sizes and exploratory intervals; see [experiment methodology](docs/experiments.md).
+
 The experiment writes `dqn.json` and `experiment.json`, including per-episode rewards, network metrics, seeds, weights and evaluation results. Training uses seeds 100–139; evaluation uses 10000–10011 for identical scenario comparisons across policies. The four toy scenarios are honest, unavailable, malicious and faulty target behavior. The detector fits only normal synthetic training rows at seed 101; evaluation rows use seed 202. Generated datasets and checkpoints are ignored by Git.
 
 The DQN is a small **NumPy** neural network with experience replay and a target network. This keeps the working local path lightweight. Original PyTorch actor/critic code remains an independent historical research helper; it is not advertised as a working PPO implementation. Missing/invalid checkpoints use a safe rule fallback through `load_policy`.
 
 Actual measured comparison and limitations are in [validation results](docs/VALIDATION.md). Training runs do not establish that a policy improves resilience. This phase's measured DQN did **not** beat the no-healing baseline.
 
+## Documentation
+
+[Setup](docs/setup-guide.md) · [SRS](docs/SRS.md) · [Architecture](docs/architecture.md) · [Consensus](docs/consensus.md) · [RL design](docs/rl-design.md) · [Security model](docs/security-model.md) · [Dashboard](docs/DASHBOARD.md) · [API](docs/API.md) · [Testing](docs/testing.md) · [Experiments](docs/experiments.md) · [Deployment](docs/deployment.md) · [Troubleshooting](docs/troubleshooting.md) · [Audit](docs/IMPLEMENTATION_AUDIT.md) · [Roadmap](docs/ROADMAP.md).
+
 ## Verification
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m ruff check backend ledgershield tests migrations
+.\.venv\Scripts\python.exe -m ruff format --check backend ledgershield tests migrations
+.\.venv\Scripts\python.exe -m mypy
 cd frontend
 npm run lint
+npm run typecheck
+npm run format:check
+npm test
 npm run build
 npm audit
 ```
@@ -192,9 +212,13 @@ The legacy traffic scripts are not protocol-level Sybil/double-spend demonstrati
 ## Project status and next phase
 
 - Implemented and locally verified: signed ledger, controlled simulator, evidence/trust/recovery pipeline, offline learning experiments and connected observatory.
-- Next: durable persistence, richer failure experiments, deployment identity management and stronger distributed protocol modeling, according to the [roadmap](docs/ROADMAP.md).
+- Next: durable live-consensus resumption, richer failure experiments, deployment identity management and stronger distributed protocol modeling, according to the [roadmap](docs/ROADMAP.md).
 - **Screenshots:** will be captured from the completed local app and added here after the final phase. No mock screenshots are included.
 
-Maintained by [Manikant Kumar](https://github.com/manikantbindass). See [contribution guidance](CONTRIBUTING.md). A license file has not yet been selected; this README does not grant an MIT license.
+Maintained by [Manikant Kumar](https://github.com/manikantbindass). See [contribution guidance](CONTRIBUTING.md).
+
+## License
+
+A license file has not yet been selected; this README does not grant an MIT license.
 
 ![LedgerShield animated recovery signal](docs/assets/footer.svg)

@@ -1,5 +1,7 @@
 """Reversible simulator actions with hard guards and explicit operational modes."""
+
 from dataclasses import dataclass
+
 from .core import Rejected, digest
 
 ACTIONS = ("observe", "monitor", "quarantine", "restore", "resync", "reassign", "view_change")
@@ -52,15 +54,34 @@ class Orchestrator:
             return self.records[key]
         if action not in ACTIONS or node_id not in self.network.nodes:
             raise Rejected("invalid_recovery_action")
-        record = {"id": key, "node_id": node_id, "action": action,
-                  "timestamp": self.network.tick, "evidence": evidence,
-                  "trust": self.trust.get(node_id), "expected_impact": action,
-                  "before": self.network.summary(), "status": "proposed"}
+        record = {
+            "id": key,
+            "node_id": node_id,
+            "action": action,
+            "timestamp": self.network.tick,
+            "evidence": evidence,
+            "trust": self.trust.get(node_id),
+            "expected_impact": action,
+            "before": self.network.summary(),
+            "status": "proposed",
+            "proposed_mode": self.config.mode,
+            "approval_required": self.config.mode == "approval_required"
+            and action not in ("observe", "monitor", "reassign"),
+            "safety_checks": {
+                "permitted_action": True,
+                "scope": "local_simulator",
+                "execution_guards": "not_yet_evaluated",
+            },
+        }
         self.audit.append(record)
         self.records[key] = record
         if self.config.mode == "observe_only":
             record["status"] = "observed"
-        elif self.config.mode == "approval_required" and action not in ("observe", "monitor", "reassign"):
+        elif self.config.mode == "approval_required" and action not in (
+            "observe",
+            "monitor",
+            "reassign",
+        ):
             record["status"] = "pending_approval"
         else:
             self.execute(record)
@@ -81,6 +102,12 @@ class Orchestrator:
         name, action = record["node_id"], record["action"]
         node = net.nodes[name]
         pair = (name, action)
+        record["safety_checks"].update(
+            execution_guards="evaluated",
+            quorum_required=net.quorum,
+            cooldown_elapsed=net.tick - self.last.get(pair, -1000) >= cfg.cooldown,
+            retry_budget_available=self.retries.get(pair, 0) < cfg.retry_limit,
+        )
         if net.tick - self.last.get(pair, -1000) < cfg.cooldown:
             record["status"] = "cooldown"
             return
@@ -88,11 +115,19 @@ class Orchestrator:
             record["status"] = "retry_limit"
             return
         if action == "quarantine":
+            record["safety_checks"]["verified_evidence"] = bool(record["evidence"].get("verified"))
             if not record["evidence"].get("verified"):
                 record["status"] = "blocked_unverified"
                 return
-            available = sum(not n.quarantined and n.behavior != "unavailable" and n.id != name
-                            for n in net.nodes.values() if n.validator)
+            available = sum(
+                not n.quarantined and n.behavior != "unavailable" and n.id != name
+                for n in net.nodes.values()
+                if n.validator
+            )
+            record["safety_checks"]["remaining_available_validators"] = available
+            record["safety_checks"]["quorum_preserved"] = (
+                not node.validator or available >= net.quorum
+            )
             if node.validator and available < net.quorum:
                 record["status"] = "blocked_quorum"
                 return
@@ -137,8 +172,9 @@ class Orchestrator:
             record["status"] = "recovered"
             record["after"] = net.summary()
             record["duration_ticks"] = net.tick - record["timestamp"]
-            record["collateral_nodes"] = [n.id for n in net.nodes.values()
-                                          if n.height < len(net.ledger.chain) - 1]
+            record["collateral_nodes"] = [
+                n.id for n in net.nodes.values() if n.height < len(net.ledger.chain) - 1
+            ]
             self.retries[pair] = 0
             self.trust.update(name, record["id"], "recovery", net.tick)
         except Exception as exc:

@@ -1,102 +1,294 @@
 import { useEffect, useState } from 'react'
+import LiveProvider from './LiveProvider'
+import { useDashboard } from './lib/context'
+import { routeFromHash } from './lib/utils'
+import { Badge, Empty, Icon, Loading } from './components'
+import { BlockchainExplorer, NetworkExplorer, Overview, SecurityCenter } from './pages/Observe'
+import { HealingCenter, SettingsAudit, SimulationLab, TrustManagement } from './pages/Operations'
+import { ExperimentReports, RLLab } from './pages/Research'
 
-const fmt = value => Number(value ?? 0).toFixed(1)
+const pages = [
+  ['overview', 'Overview', Overview, 'A measured view of network resilience.'],
+  [
+    'network',
+    'Network Explorer',
+    NetworkExplorer,
+    'Inspect participants, connectivity and validator state.',
+  ],
+  [
+    'blockchain',
+    'Blockchain Explorer',
+    BlockchainExplorer,
+    'Follow signed transfers from intent to canonical execution.',
+  ],
+  [
+    'security',
+    'Security Center',
+    SecurityCenter,
+    'Investigate anomaly indicators and their supporting evidence.',
+  ],
+  [
+    'trust',
+    'Trust Management',
+    TrustManagement,
+    'Understand every consequential reputation change.',
+  ],
+  [
+    'healing',
+    'Self-Healing Center',
+    HealingCenter,
+    'Trace proposals, safety decisions and measured recovery outcomes.',
+  ],
+  ['rl', 'RL Lab', RLLab, 'Inspect recorded learning and evaluate policy assumptions.'],
+  [
+    'simulation',
+    'Simulation Lab',
+    SimulationLab,
+    'Design bounded, reversible local fault experiments.',
+  ],
+  [
+    'reports',
+    'Experiment Reports',
+    ExperimentReports,
+    'Compare reproducible results and export the evidence.',
+  ],
+  [
+    'settings',
+    'Settings & Audit',
+    SettingsAudit,
+    'Manage local access, safe settings and operational diagnostics.',
+  ],
+]
 
-export default function App() {
-  const [state, setState] = useState(null)
-  const [connected, setConnected] = useState(false)
-  const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [token, setToken] = useState('')
-
-  useEffect(() => {
-    let ws, retry, cancelled = false
-    function connect() {
-      if (cancelled) return
-      ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/api/v1/ws`)
-      ws.onopen = () => setConnected(true)
-      ws.onmessage = event => {
-        try {
-          const message = JSON.parse(event.data)
-          if (message.type === 'snapshot') setState(message.data)
-        }
-        catch { setError('Received an invalid simulator update.') }
-      }
-      ws.onclose = () => {
-        setConnected(false)
-        if (!cancelled) retry = setTimeout(connect, 2000)
-      }
-      ws.onerror = () => ws.close()
-    }
-    connect()
-    return () => { cancelled = true; clearTimeout(retry); ws?.close() }
-  }, [])
-
-  async function post(path, body = {}) {
-    setBusy(true); setError('')
+function Dashboard() {
+  const [route, setRoute] = useState(() => routeFromHash(location.hash))
+  const [menu, setMenu] = useState(false)
+  const [theme, setTheme] = useState(() => {
     try {
-      const response = await fetch(`/api/v1${path}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body),
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error?.detail ?? 'Request failed')
-      const fresh = await fetch('/api/v1/network/state')
-      if (!fresh.ok) throw new Error('Could not refresh simulator state')
-      setState(await fresh.json())
-    } catch (err) { setError(err.message) }
-    finally { setBusy(false) }
-  }
-
-  const metrics = state?.metrics ?? {}
+      return localStorage.getItem('ledgershield-theme') === 'light' ? 'light' : 'dark'
+    } catch {
+      return 'dark'
+    }
+  })
+  const { snapshot, connection, lastSeen, role, notice, setNotice, busy, refresh } = useDashboard()
+  useEffect(() => {
+    const navigate = () => {
+      setRoute(routeFromHash(location.hash))
+      setMenu(false)
+    }
+    window.addEventListener('hashchange', navigate)
+    return () => window.removeEventListener('hashchange', navigate)
+  }, [])
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    try {
+      localStorage.setItem('ledgershield-theme', theme)
+    } catch {
+      /* Storage is optional. */
+    }
+  }, [theme])
+  const current = pages.find((page) => page[0] === route)
+  const Page = current?.[2]
   return (
-    <div className="shell">
-      <aside className="sidebar">
-        <a href="#overview" className="brand"><span className="shield">◇</span> LedgerShield<span className="brand-dot">.</span></a>
-        <p className="eyebrow">RESILIENCE LAB / 01</p>
-        <nav aria-label="Dashboard navigation">
-          <a className="selected" href="#overview">◈ <span>Overview</span></a>
-          <a href="#network">⌘ <span>Network nodes</span></a>
-          <a href="#alerts">⚑ <span>Evidence & alerts</span></a>
-          <a href="#recovery">↻ <span>Recovery journal</span></a>
-          <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">↗ <span>API reference</span></a>
+    <div className="app-shell">
+      <a
+        href="#main-content"
+        className="skip-link"
+        onClick={(event) => {
+          event.preventDefault()
+          document.getElementById('main-content')?.focus()
+        }}
+      >
+        Skip to content
+      </a>
+      <aside className={`sidebar ${menu ? 'menu-open' : ''}`}>
+        <a className="brand" href="#/overview">
+          <span className="brand-mark">
+            <Icon name="security" size={27} />
+          </span>
+          <span>
+            LedgerShield<span className="brand-dot">.</span>
+          </span>
+        </a>
+        <div className="workspace-label">
+          <span className="signal-marker" />
+          RESEARCH WORKSPACE <small>01</small>
+        </div>
+        <nav aria-label="Dashboard pages">
+          {pages.map(([id, title], i) => (
+            <a
+              href={`#/${id}`}
+              key={id}
+              aria-label={title}
+              aria-current={route === id ? 'page' : undefined}
+            >
+              <Icon name={id} />
+              <span>{title}</span>
+              {id === 'security' && !!snapshot?.metrics.anomalies && (
+                <small>{snapshot.metrics.anomalies}</small>
+              )}
+              {i === 0 && <span className="nav-indicator" />}
+            </a>
+          ))}
         </nav>
-        <div className="lab-note"><span className="status-dot" /> LOCAL SIMULATOR<p>Reproducible experiments.<br />Explainable decisions.</p><small>Educational prototype · no real funds</small></div>
+        <div className="sidebar-bottom">
+          <Badge tone="good">Controlled simulation</Badge>
+          <p>
+            Explain the evidence.
+            <br />
+            Measure the recovery.
+          </p>
+          <small>
+            Local research prototype
+            <br />
+            No real funds or P2P deployment
+          </small>
+          <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">
+            API reference ↗
+          </a>
+        </div>
       </aside>
-      <main id="overview">
-        <header className="topbar"><span>WORKSPACE <b>/ Network observatory</b></span><span className={`connection ${connected ? 'live' : ''}`}><i />{connected ? 'Live telemetry' : 'Reconnecting…'}</span></header>
-        <div className="auth-bar"><label>Local API access <input type="password" autoComplete="off" aria-label="Operator or admin API token" placeholder="Paste operator or admin token" value={token} onChange={event => setToken(event.target.value)} /></label><span>Token stays in this tab’s memory. Admin access is needed for approvals, modes and reset.</span></div>
-        <section className="intro"><div><p className="eyebrow">MONITOR. UNDERSTAND. RECOVER.</p><h1>A clearer view of<br />network resilience<span>.</span></h1><p>Signed transfers, consensus evidence, and controlled recovery.<br />Every number comes from the local simulator.</p></div><div className="orbit" aria-hidden="true"><div className="orbit-ring" /><div className="orbit-ring inner" /><span className="core-shield">◇</span><i className="satellite s1" /><i className="satellite s2" /><i className="satellite s3" /></div></section>
-        {error && <div role="alert" className="error">{error}</div>}
-        {!state ? <div className="panel empty">Connecting to the LedgerShield API on port 8000…</div> : <>
-          <section className="stats" aria-label="Simulator metrics">
-            <Metric label="BLOCK HEIGHT" value={metrics.height} suffix="blocks" detail={`View ${metrics.view} · fixed quorum ${metrics.quorum}`} />
-            <Metric label="TRANSACTION THROUGHPUT" value={fmt(metrics.throughput)} suffix="tx / sim s" detail={`${metrics.accepted} accepted · ${metrics.rejected} rejected`} />
-            <Metric label="MESSAGE LATENCY" value={fmt(metrics.message_latency_ms)} suffix="ms" detail={`${metrics.timeouts} transport timeouts`} />
-            <Metric label="RECOVERY OUTCOMES" value={metrics.recovery_successes} suffix="verified" detail={`${metrics.recovery_attempts} attempted · ${metrics.recovery_failures} rolled back`} />
-          </section>
-          <section className="controls panel"><div><p className="eyebrow">EXPERIMENT CONTROLS</p><p className="muted">Changes affect this local simulation only.</p></div><div className="actions">
-            <button disabled={busy || !token} onClick={() => post('/simulation/transaction')}>+ Signed demo transfer</button>
-            <button disabled={busy || !token} onClick={() => post('/simulation/step')}>Advance round ↗</button>
-            <button disabled={busy || !token} className="subtle" onClick={() => post('/simulation/reset')}>Reset</button>
-          </div></section>
-          <section id="network"><div className="section-heading"><h2>Network participants <span>{state.nodes.length}</span></h2><p>Validator membership stays fixed during recovery</p></div><div className="nodes">{state.nodes.map(node => <article className={`panel node ${node.quarantined ? 'isolated' : ''}`} key={node.id}>
-            <div className="node-head"><span className="node-icon">⬡</span><span className={`tag ${node.status === 'honest' ? 'good' : 'warn'}`}>{node.status}</span></div>
-            <h3>{node.id.replace('_', ' / ')}</h3><p className="muted">{node.validator ? 'Consensus validator' : 'Observer node'} · height {node.height}</p>
-            <div className="trust"><span>Trust assessment</span><b>{fmt(node.trust_score)}<small>/100</small></b></div><progress max="100" value={node.trust_score} aria-label={`${node.id} trust score`} />
-            <div className="node-meta"><span>{node.telemetry.votes} valid votes</span><span>{node.telemetry.timeouts} timeouts</span></div>
-            <label className="scenario-label">Simulated behavior<select disabled={busy || !token} value={node.behavior} onChange={event => post('/simulation/scenarios', { node_id: node.id, behavior: event.target.value })}>{['honest', 'faulty', 'unavailable', 'malicious'].map(value => <option key={value}>{value}</option>)}</select></label>
-          </article>)}</div></section>
-          <section className="two-col"><div className="panel consensus"><p className="eyebrow">CONSENSUS STATUS</p><h2>{state.consensus.committed ? 'Quorum reached' : 'Awaiting quorum'}</h2><p className="muted">Signed prepare + commit votes · {metrics.quorum} required</p><div className="signal-bars" aria-hidden="true">{state.nodes.filter(n => n.validator).map(n => <span className={n.behavior === 'honest' && !n.quarantined ? 'on' : ''} key={n.id} />)}</div><div className="key-values"><span>Consensus stalls <b>{metrics.stalls}</b></span><span>Voting consistency <b>{fmt(metrics.voting_consistency * 100)}%</b></span><span>Transaction latency <b>{fmt(metrics.transaction_latency_ms)} ms</b></span><span>Block production delay <b>{fmt(metrics.block_delay_ms)} ms</b></span></div></div>
-          <div className="panel"><p className="eyebrow">RECOVERY POLICY</p><h2>Safety before intervention</h2><p className="muted">Anomaly indicators carry evidence. A detector output alone cannot permanently ban a participant.</p><label className="policy-label">Operating mode<select value={state.mode} disabled={busy || !token} onChange={event => post('/healing/mode', { mode: event.target.value })}><option value="observe_only">Observe only</option><option value="approval_required">Human approval required</option><option value="autonomous_simulation">Autonomous local simulation</option></select></label><p className="policy-note">Reversible actions · quorum guard · cooldowns · rollback</p></div></section>
-          <section id="alerts" className="panel"><div className="section-heading"><h2>Evidence & alerts</h2><span className="tag">{metrics.anomalies} recorded</span></div><p className="muted">An anomaly is an indicator, not proof of malicious intent.</p><div className="table-wrap"><table><thead><tr><th>Tick</th><th>Participant</th><th>Detection method</th><th>Confidence</th><th>Evidence</th></tr></thead><tbody>{state.alerts.slice(-8).reverse().map(a => <tr key={a.id}><td>{a.timestamp}</td><td>{a.node_id}</td><td>{a.method.replaceAll('_', ' ')}</td><td>{fmt(a.confidence * 100)}%</td><td><span className={`tag ${a.verified ? 'warn' : ''}`}>{a.verified ? 'Verified invalid vote' : 'Unverified indicator'}</span></td></tr>)}</tbody></table>{!state.alerts.length && <p className="empty">No alerts yet. Apply a fault scenario to explore the evidence pipeline.</p>}</div></section>
-          <section id="recovery" className="panel"><div className="section-heading"><h2>Recovery journal</h2><span className="tag">{state.mode.replaceAll('_', ' ')}</span></div>{!state.recovery.length && <p className="empty">Recovery proposals will appear here with their reasons and outcomes.</p>}{state.recovery.slice(-6).reverse().map(r => <div className="journal" key={r.id}><span className="journal-icon">↻</span><div><b>{r.action} / {r.node_id}</b><p className="muted">{r.evidence.method} · trust {fmt(r.trust)} · tick {r.timestamp}</p>{r.reason && <small>{r.reason}</small>}</div><span className="tag">{r.status.replaceAll('_', ' ')}</span>{r.status === 'pending_approval' && <button disabled={busy || !token} onClick={() => post(`/healing/actions/${r.id}/approve`)}>Approve locally</button>}</div>)}</section>
-        </>}
-        <footer><span>LedgerShield / Research in network resilience</span><span>Simulator time · {metrics.simulated_seconds ?? 0}s</span></footer>
-      </main>
+      <div className="workspace">
+        <header className="topbar">
+          <div className="breadcrumbs">
+            <button
+              className="icon-button mobile-menu"
+              aria-expanded={menu}
+              aria-label={menu ? 'Close navigation' : 'Open navigation'}
+              onClick={() => setMenu(!menu)}
+            >
+              <Icon name="menu" />
+            </button>
+            <span>WORKSPACE</span>
+            <span>/</span>
+            <strong>{current?.[1] || 'Unknown page'}</strong>
+          </div>
+          <div className="top-actions">
+            <span className={`connection ${connection}`}>
+              <i />
+              {connection === 'live'
+                ? 'Live simulator'
+                : connection === 'connecting'
+                  ? 'Connecting'
+                  : 'Offline'}
+            </span>
+            <button
+              className="icon-button"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              <Icon name="sun" />
+            </button>
+            <a className="access-button" href="#/settings" aria-label="Open access settings">
+              <span>{role.charAt(0).toUpperCase()}</span>
+              <span>{role === 'viewer' ? 'Read-only access' : `${role} access`}</span>
+            </a>
+          </div>
+        </header>
+        <main id="main-content" tabIndex="-1">
+          <div className="page-title">
+            <div>
+              <div className="eyebrow">
+                LEDGERSHIELD /{' '}
+                {String(
+                  Math.max(
+                    0,
+                    pages.findIndex((p) => p[0] === route),
+                  ) + 1,
+                ).padStart(2, '0')}
+              </div>
+              <h1>{current?.[1] || 'Page not found'}</h1>
+              <p>{current?.[3] || 'Choose a page from the navigation to continue.'}</p>
+            </div>
+            <div className="page-actions">
+              <Badge tone={snapshot?.running ? 'good' : ''}>
+                {snapshot?.running ? 'Simulation running' : 'Simulation paused'}
+              </Badge>
+              <button
+                disabled={busy}
+                className="icon-button"
+                aria-label="Refresh server data"
+                title="Refresh server data"
+                onClick={refresh}
+              >
+                <Icon name="refresh" />
+              </button>
+            </div>
+          </div>
+          {connection !== 'live' && (
+            <div className="notice warning" role="status">
+              <strong>
+                {connection === 'connecting'
+                  ? 'Connecting to the local API.'
+                  : 'Live connection lost. Reconnecting automatically.'}
+              </strong>{' '}
+              {snapshot
+                ? `Showing the last received simulator snapshot, tick ${snapshot.metrics.simulated_seconds}${lastSeen ? `, observed at ${new Date(lastSeen).toLocaleTimeString()}` : ''}. Controls are disabled until live updates resume.`
+                : 'Start the local backend on port 8000. No measurements are available yet.'}
+            </div>
+          )}
+          {notice && (
+            <div
+              className={`notice ${notice.type}`}
+              role={notice.type === 'error' ? 'alert' : 'status'}
+            >
+              <div>
+                <strong>{notice.message}</strong>
+                {notice.request_id && <small>Request ID: {notice.request_id}</small>}
+              </div>
+              <button aria-label="Dismiss notification" onClick={() => setNotice(null)}>
+                Dismiss
+              </button>
+            </div>
+          )}
+          {busy && (
+            <div className="working" role="status">
+              <span className="spinner" />
+              Processing authorized request…
+            </div>
+          )}
+          {role === 'viewer' && snapshot && (
+            <div className="access-note">
+              <Icon name="security" size={15} />
+              <span>
+                Read-only research access. <a href="#/settings">Verify a local API token</a> to
+                operate the simulator.
+              </span>
+            </div>
+          )}
+          {!Page ? (
+            <Empty title="Unknown dashboard page">
+              <a className="text-link" href="#/overview">
+                Return to Overview
+              </a>
+            </Empty>
+          ) : snapshot ? (
+            <Page key={`${route}:${snapshot.instance_id}`} />
+          ) : connection === 'connecting' ? (
+            <Loading />
+          ) : (
+            <Empty title="No simulator data available">
+              Cached or generated values are never substituted for missing measurements. Use Refresh
+              server data to retry while the connection recovers.
+            </Empty>
+          )}
+          <footer>
+            <span>LedgerShield · Local research simulator · In-memory state</span>
+            <span>
+              Simulated time <strong>{snapshot?.metrics.simulated_seconds ?? '—'} ticks</strong> ·
+              API v1
+            </span>
+          </footer>
+        </main>
+      </div>
     </div>
   )
 }
-
-function Metric({ label, value, suffix, detail }) {
-  return <article className="panel metric"><p className="eyebrow">{label}</p><div className="metric-value">{value ?? 0}<small>{suffix}</small></div><p className="muted">{detail}</p></article>
+export default function App() {
+  return (
+    <LiveProvider>
+      <Dashboard />
+    </LiveProvider>
+  )
 }

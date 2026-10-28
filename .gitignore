@@ -14,3 +14,8 @@ artifacts/
 datasets/
 .coverage
 htmlcov/
+.mypy_cache/
+*.db
+*.db-journal
+test-results/
+playwright-report/

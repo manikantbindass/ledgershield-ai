@@ -1,0 +1,1832 @@
+{
+  "schema_version": 1,
+  "configuration": {
+    "seeds": [
+      22000,
+      22001,
+      22002
+    ],
+    "horizon": 8,
+    "scenarios": [
+      "normal",
+      "node_failure",
+      "suspicious_voting",
+      "faulty"
+    ],
+    "node_count": 6,
+    "validator_count": 4,
+    "training_seed_count": 40,
+    "checkpoint_sha256": "d53601875e6352bf1ccabbab88868a33241471e479c6e91487a66af00fe3b2a8",
+    "checkpoint_updates": 769
+  },
+  "runs": [
+    {
+      "policy": "no_healing",
+      "scenario": "normal",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "normal",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "normal",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "node_failure",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "node_failure",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 9,
+      "throughput_tx_per_sim_second": 0.8888888888888888,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.9583333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": 4.0,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 3,
+      "verified_recoveries": 1,
+      "fault_detected": true,
+      "fault_recovered": true,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "node_failure",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 2,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "suspicious_voting",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "suspicious_voting",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 9,
+      "throughput_tx_per_sim_second": 0.8888888888888888,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": 2.0,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 3,
+      "verified_recoveries": 1,
+      "fault_detected": true,
+      "fault_recovered": true,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "suspicious_voting",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 2,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "faulty",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "faulty",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "faulty",
+      "seed": 22000,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "normal",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "normal",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "normal",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "node_failure",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "node_failure",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 9,
+      "throughput_tx_per_sim_second": 0.8888888888888888,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.9583333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": 4.0,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 3,
+      "verified_recoveries": 1,
+      "fault_detected": true,
+      "fault_recovered": true,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "node_failure",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 2,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "suspicious_voting",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "suspicious_voting",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 9,
+      "throughput_tx_per_sim_second": 0.8888888888888888,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": 2.0,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 3,
+      "verified_recoveries": 1,
+      "fault_detected": true,
+      "fault_recovered": true,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "suspicious_voting",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 2,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "faulty",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "faulty",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "faulty",
+      "seed": 22001,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "normal",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "normal",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "normal",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": null,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "node_failure",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "node_failure",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 9,
+      "throughput_tx_per_sim_second": 0.8888888888888888,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.9583333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": 4.0,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 3,
+      "verified_recoveries": 1,
+      "fault_detected": true,
+      "fault_recovered": true,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "node_failure",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 2,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "suspicious_voting",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "suspicious_voting",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 9,
+      "throughput_tx_per_sim_second": 0.8888888888888888,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 0.8333333333333334,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": 2.0,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 3,
+      "verified_recoveries": 1,
+      "fault_detected": true,
+      "fault_recovered": true,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "suspicious_voting",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": 1.0,
+      "detection_recall": 1.0,
+      "attack_detection_precision": 1.0,
+      "attack_detection_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": 1,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 2,
+      "verified_recoveries": 0,
+      "fault_detected": true,
+      "fault_recovered": false,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "attack_tp": 1,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "no_healing",
+      "scenario": "faulty",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "rule",
+      "scenario": "faulty",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    },
+    {
+      "policy": "trained_dqn",
+      "scenario": "faulty",
+      "seed": 22002,
+      "horizon": 8,
+      "simulated_ticks": 8,
+      "throughput_tx_per_sim_second": 1.0,
+      "end_to_end_latency_ms": 1000.0,
+      "network_availability": 1.0,
+      "consensus_completion_rate": 1.0,
+      "detection_precision": null,
+      "detection_recall": 0.0,
+      "attack_detection_precision": null,
+      "attack_detection_recall": null,
+      "false_positive_rate": 0.0,
+      "mean_time_to_detect_ticks": null,
+      "mean_time_to_recover_ticks": null,
+      "unnecessary_interventions": 0,
+      "failed_recovery_attempts": 0,
+      "recovery_attempts": 0,
+      "verified_recoveries": 0,
+      "fault_detected": false,
+      "fault_recovered": false,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 5,
+      "attack_tp": 0,
+      "attack_fp": 0,
+      "attack_fn": 0
+    }
+  ],
+  "summary": {
+    "no_healing": {
+      "runs": 12,
+      "metrics": {
+        "throughput_tx_per_sim_second": {
+          "n": 12,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "end_to_end_latency_ms": {
+          "n": 12,
+          "mean": 1000.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1000.0,
+            1000.0
+          ]
+        },
+        "network_availability": {
+          "n": 12,
+          "mean": 0.9583333333333335,
+          "sample_variance": 0.0056818181818181785,
+          "exploratory_bootstrap_95_interval": [
+            0.9166666666666669,
+            1.0
+          ]
+        },
+        "consensus_completion_rate": {
+          "n": 12,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "detection_precision": {
+          "n": 6,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "detection_recall": {
+          "n": 9,
+          "mean": 0.6666666666666666,
+          "sample_variance": 0.25,
+          "exploratory_bootstrap_95_interval": [
+            0.3333333333333333,
+            1.0
+          ]
+        },
+        "attack_detection_precision": {
+          "n": 3,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "attack_detection_recall": {
+          "n": 3,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "false_positive_rate": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "mean_time_to_detect_ticks": {
+          "n": 6,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "mean_time_to_recover_ticks": {
+          "n": 0,
+          "mean": null,
+          "sample_variance": null,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "unnecessary_interventions": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "failed_recovery_attempts": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "recovery_attempts": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "verified_recoveries": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "fault_detected": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fault_recovered": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "tp": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fp": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "fn": {
+          "n": 12,
+          "mean": 0.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.5
+          ]
+        },
+        "tn": {
+          "n": 12,
+          "mean": 5.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            5.0,
+            5.5
+          ]
+        },
+        "attack_tp": {
+          "n": 12,
+          "mean": 0.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.5
+          ]
+        },
+        "attack_fp": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "attack_fn": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "pooled_detection": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 3,
+        "tn": 63,
+        "attack_tp": 3,
+        "attack_fp": 0,
+        "attack_fn": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "false_positive_rate": 0.0,
+        "attack_precision": 1.0,
+        "attack_recall": 1.0
+      }
+    },
+    "rule": {
+      "runs": 12,
+      "metrics": {
+        "throughput_tx_per_sim_second": {
+          "n": 12,
+          "mean": 0.9444444444444445,
+          "sample_variance": 0.00336700336700337,
+          "exploratory_bootstrap_95_interval": [
+            0.9166666666666666,
+            0.9722222222222223
+          ]
+        },
+        "end_to_end_latency_ms": {
+          "n": 12,
+          "mean": 1000.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1000.0,
+            1000.0
+          ]
+        },
+        "network_availability": {
+          "n": 12,
+          "mean": 0.9479166666666669,
+          "sample_variance": 0.005089962121212118,
+          "exploratory_bootstrap_95_interval": [
+            0.9062500000000001,
+            0.982638888888889
+          ]
+        },
+        "consensus_completion_rate": {
+          "n": 12,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "detection_precision": {
+          "n": 6,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "detection_recall": {
+          "n": 9,
+          "mean": 0.6666666666666666,
+          "sample_variance": 0.25,
+          "exploratory_bootstrap_95_interval": [
+            0.3333333333333333,
+            1.0
+          ]
+        },
+        "attack_detection_precision": {
+          "n": 3,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "attack_detection_recall": {
+          "n": 3,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "false_positive_rate": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "mean_time_to_detect_ticks": {
+          "n": 6,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "mean_time_to_recover_ticks": {
+          "n": 6,
+          "mean": 3.0,
+          "sample_variance": 1.2,
+          "exploratory_bootstrap_95_interval": [
+            2.3333333333333335,
+            3.6666666666666665
+          ]
+        },
+        "unnecessary_interventions": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "failed_recovery_attempts": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "recovery_attempts": {
+          "n": 12,
+          "mean": 1.5,
+          "sample_variance": 2.4545454545454546,
+          "exploratory_bootstrap_95_interval": [
+            0.75,
+            2.25
+          ]
+        },
+        "verified_recoveries": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fault_detected": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fault_recovered": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "tp": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fp": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "fn": {
+          "n": 12,
+          "mean": 0.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.5
+          ]
+        },
+        "tn": {
+          "n": 12,
+          "mean": 5.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            5.0,
+            5.5
+          ]
+        },
+        "attack_tp": {
+          "n": 12,
+          "mean": 0.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.5
+          ]
+        },
+        "attack_fp": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "attack_fn": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "pooled_detection": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 3,
+        "tn": 63,
+        "attack_tp": 3,
+        "attack_fp": 0,
+        "attack_fn": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "false_positive_rate": 0.0,
+        "attack_precision": 1.0,
+        "attack_recall": 1.0
+      }
+    },
+    "trained_dqn": {
+      "runs": 12,
+      "metrics": {
+        "throughput_tx_per_sim_second": {
+          "n": 12,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "end_to_end_latency_ms": {
+          "n": 12,
+          "mean": 1000.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1000.0,
+            1000.0
+          ]
+        },
+        "network_availability": {
+          "n": 12,
+          "mean": 0.9583333333333335,
+          "sample_variance": 0.0056818181818181785,
+          "exploratory_bootstrap_95_interval": [
+            0.9166666666666669,
+            1.0
+          ]
+        },
+        "consensus_completion_rate": {
+          "n": 12,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "detection_precision": {
+          "n": 6,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "detection_recall": {
+          "n": 9,
+          "mean": 0.6666666666666666,
+          "sample_variance": 0.25,
+          "exploratory_bootstrap_95_interval": [
+            0.3333333333333333,
+            1.0
+          ]
+        },
+        "attack_detection_precision": {
+          "n": 3,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "attack_detection_recall": {
+          "n": 3,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "false_positive_rate": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "mean_time_to_detect_ticks": {
+          "n": 6,
+          "mean": 1.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            1.0,
+            1.0
+          ]
+        },
+        "mean_time_to_recover_ticks": {
+          "n": 0,
+          "mean": null,
+          "sample_variance": null,
+          "exploratory_bootstrap_95_interval": null
+        },
+        "unnecessary_interventions": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "failed_recovery_attempts": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "recovery_attempts": {
+          "n": 12,
+          "mean": 1.0,
+          "sample_variance": 1.0909090909090908,
+          "exploratory_bootstrap_95_interval": [
+            0.5,
+            1.5
+          ]
+        },
+        "verified_recoveries": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "fault_detected": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fault_recovered": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "tp": {
+          "n": 12,
+          "mean": 0.5,
+          "sample_variance": 0.2727272727272727,
+          "exploratory_bootstrap_95_interval": [
+            0.25,
+            0.75
+          ]
+        },
+        "fp": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "fn": {
+          "n": 12,
+          "mean": 0.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.5
+          ]
+        },
+        "tn": {
+          "n": 12,
+          "mean": 5.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            5.0,
+            5.5
+          ]
+        },
+        "attack_tp": {
+          "n": 12,
+          "mean": 0.25,
+          "sample_variance": 0.20454545454545456,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.5
+          ]
+        },
+        "attack_fp": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "attack_fn": {
+          "n": 12,
+          "mean": 0.0,
+          "sample_variance": 0.0,
+          "exploratory_bootstrap_95_interval": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "pooled_detection": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 3,
+        "tn": 63,
+        "attack_tp": 3,
+        "attack_fp": 0,
+        "attack_fn": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "false_positive_rate": 0.0,
+        "attack_precision": 1.0,
+        "attack_recall": 1.0
+      }
+    }
+  },
+  "limitations": [
+    "Centralized educational simulator; no real-world attack benchmark or hardware latency claim.",
+    "DQN is trained in HealingEnv; alert-driven application evaluation is a distinct distribution. No retraining or automatic deployment occurs.",
+    "Timing uses simulator ticks; recovery means the guarded action led to a new commit, not proof of restored Byzantine safety.",
+    "Detection confusion counts are per-node per-episode fault indicators. Attack metrics use verified wrong-hash vote indicators and injected malicious-voting labels only.",
+    "Null means undefined or unobserved; MTTD/MTTR condition on detected/recovered faults and exclude censored failures. Inspect fault_detected/fault_recovered and counts.",
+    "Availability is averaged after application steps; completion includes recovery verification rounds. Unnecessary actions target known-unaffected identities.",
+    "Bootstrap intervals are exploratory across this sampled seed/scenario mixture, not general security guarantees."
+  ]
+}

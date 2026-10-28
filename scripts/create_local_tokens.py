@@ -5,8 +5,7 @@ import secrets
 if __name__ == "__main__":
     path = Path(__file__).resolve().parents[1] / ".env"
     content = path.read_text() if path.exists() else "RECOVERY_MODE=observe_only\n"
-    for role in ("OPERATOR", "ADMIN"):
-        name = f"LEDGERSHIELD_{role}_TOKEN"
+    for name in ("LEDGERSHIELD_OPERATOR_TOKEN", "LEDGERSHIELD_ADMIN_TOKEN", "POSTGRES_PASSWORD", "GRAFANA_ADMIN_PASSWORD"):
         lines = content.splitlines()
         matches = [i for i, line in enumerate(lines) if line.startswith(name + "=")]
         if not matches:

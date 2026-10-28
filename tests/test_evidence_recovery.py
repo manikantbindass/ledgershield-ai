@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
+
 from ledgershield.core import Rejected
-from ledgershield.evidence import Detector, TrustEngine, TrustConfig, dataset
+from ledgershield.evidence import Detector, TrustConfig, TrustEngine, dataset
 from ledgershield.network import Network
 from ledgershield.recovery import Orchestrator, RecoveryConfig
 
@@ -58,7 +59,9 @@ def test_observe_approval_idempotence_and_quorum_guard():
 def test_unverified_recovery_cannot_quarantine_and_rollback():
     net = Network()
     orch = Orchestrator(net, TrustEngine(), RecoveryConfig(mode="autonomous_simulation"))
-    assert orch.propose("node_1", "quarantine", evidence(False), "a")["status"] == "blocked_unverified"
+    assert (
+        orch.propose("node_1", "quarantine", evidence(False), "a")["status"] == "blocked_unverified"
+    )
     net.config.loss = 1
     net.nodes["node_1"].behavior = "unavailable"
     before = net.snapshot()

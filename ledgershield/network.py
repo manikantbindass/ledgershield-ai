@@ -1,7 +1,8 @@
 """Seeded, centralized PBFT-style simulation, not a distributed PBFT implementation."""
-from copy import deepcopy
-from dataclasses import asdict, dataclass
+
 import random
+from copy import deepcopy
+from dataclasses import dataclass
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
@@ -44,10 +45,14 @@ class Network:
     def __init__(self, config=None):
         self.config = config or NetworkConfig()
         self.rng = random.Random(self.config.seed)
-        self.keys = {f"node_{i}": demo_key(self.config.seed, f"node_{i}")
-                     for i in range(self.config.node_count)}
-        self.nodes = {name: Node(name, public_key(key), i < self.config.validator_count)
-                      for i, (name, key) in enumerate(self.keys.items())}
+        self.keys = {
+            f"node_{i}": demo_key(self.config.seed, f"node_{i}")
+            for i in range(self.config.node_count)
+        }
+        self.nodes = {
+            name: Node(name, public_key(key), i < self.config.validator_count)
+            for i, (name, key) in enumerate(self.keys.items())
+        }
         self.validators = tuple(n.id for n in self.nodes.values() if n.validator)
         self.wallet = demo_key(self.config.seed, "alice")
         self.receiver = public_key(demo_key(self.config.seed, "bob"))
@@ -55,19 +60,43 @@ class Network:
         self.partitions = set()
         self.view = 0
         self.tick = 0
-        self.metrics = {k: 0 for k in (
-            "submitted", "accepted", "rejected", "committed_transactions", "blocks",
-            "messages", "delivered", "timeouts", "stalls", "view_changes", "invalid_votes",
-            "failed_requests", "propagation_failures")}
+        self.metrics = {
+            k: 0
+            for k in (
+                "submitted",
+                "accepted",
+                "rejected",
+                "committed_transactions",
+                "blocks",
+                "messages",
+                "delivered",
+                "timeouts",
+                "stalls",
+                "view_changes",
+                "invalid_votes",
+                "failed_requests",
+                "propagation_failures",
+                "vote_opportunities",
+            )
+        }
         self.latencies = []
         self.processing_latencies = []
         self.block_delays = []
         self.propagation_delays = []
         self.pending_at = {}
         self.transaction_records = {}
-        self.node_metrics = {name: {"attempts": 0, "timeouts": 0, "votes": 0,
-                                   "invalid_votes": 0, "latency_ms": 0,
-                                   "valid_transactions": 0, "invalid_transactions": 0} for name in self.nodes}
+        self.node_metrics = {
+            name: {
+                "attempts": 0,
+                "timeouts": 0,
+                "votes": 0,
+                "invalid_votes": 0,
+                "latency_ms": 0,
+                "valid_transactions": 0,
+                "invalid_transactions": 0,
+            }
+            for name in self.nodes
+        }
         self.certificates = []
         self.last_round = {"committed": False, "votes": 0, "reason": "not_started"}
 
@@ -84,9 +113,16 @@ class Network:
             self.ledger.submit(tx)
         except Rejected as exc:
             self.metrics["rejected"] += 1
-            self.transaction_records.setdefault(tx.tx_hash, {
-                "tx_hash": tx.tx_hash, "transaction": tx.to_dict(), "status": "rejected",
-                "submitted_at": self.tick, "rejection_code": exc.code})
+            self.transaction_records.setdefault(
+                tx.tx_hash,
+                {
+                    "tx_hash": tx.tx_hash,
+                    "transaction": tx.to_dict(),
+                    "status": "rejected",
+                    "submitted_at": self.tick,
+                    "rejection_code": exc.code,
+                },
+            )
             # Never attribute forged signatures to the claimed sender.
             if authenticated:
                 for node in self.nodes.values():
@@ -95,8 +131,11 @@ class Network:
             raise
         self.metrics["accepted"] += 1
         self.transaction_records[tx.tx_hash] = {
-            "tx_hash": tx.tx_hash, "transaction": tx.to_dict(), "status": "pending",
-            "submitted_at": self.tick}
+            "tx_hash": tx.tx_hash,
+            "transaction": tx.to_dict(),
+            "status": "pending",
+            "submitted_at": self.tick,
+        }
         for node in self.nodes.values():
             if node.identity == tx.sender:
                 self.node_metrics[node.id]["valid_transactions"] += 1
@@ -105,24 +144,32 @@ class Network:
     def demo_transaction(self):
         sender = public_key(self.wallet)
         nonce = self.ledger.nonces.get(sender, 0) + sum(
-            t.sender == sender for t in self.ledger.pending_transactions)
+            t.sender == sender for t in self.ledger.pending_transactions
+        )
         tx = Transaction.signed(self.wallet, self.receiver, 1, nonce)
         self.submit(tx)
         return tx
 
     def reachable(self, src, dst):
         a, b = self.nodes[src], self.nodes[dst]
-        return (not a.quarantined and not b.quarantined
-                and a.behavior != "unavailable" and b.behavior != "unavailable"
-                and tuple(sorted((src, dst))) not in self.partitions)
+        return (
+            not a.quarantined
+            and not b.quarantined
+            and a.behavior != "unavailable"
+            and b.behavior != "unavailable"
+            and tuple(sorted((src, dst))) not in self.partitions
+        )
 
     def deliver(self, src, dst):
         self.metrics["messages"] += 1
         stats = self.node_metrics[dst]
         stats["attempts"] += 1
         delay = self.config.latency_ms + self.rng.randint(0, self.config.jitter_ms)
-        if (not self.reachable(src, dst) or self.rng.random() < self.config.loss
-                or delay > self.config.timeout_ms):
+        if (
+            not self.reachable(src, dst)
+            or self.rng.random() < self.config.loss
+            or delay > self.config.timeout_ms
+        ):
             self.metrics["timeouts"] += 1
             stats["timeouts"] += 1
             return False
@@ -132,8 +179,13 @@ class Network:
         return True
 
     def vote_payload(self, block, phase, view):
-        return {"chain": self.ledger.chain_id, "height": block.index, "hash": block.hash,
-                "phase": phase, "view": view}
+        return {
+            "chain": self.ledger.chain_id,
+            "height": block.index,
+            "hash": block.hash,
+            "phase": phase,
+            "view": view,
+        }
 
     def verify_certificate(self, block, votes, phase, view):
         valid = set()
@@ -143,7 +195,8 @@ class Network:
                 continue
             try:
                 Ed25519PublicKey.from_public_bytes(bytes.fromhex(self.nodes[name].identity)).verify(
-                    bytes.fromhex(signature), payload)
+                    bytes.fromhex(signature), payload
+                )
                 valid.add(name)
             except (InvalidSignature, ValueError, TypeError):
                 continue
@@ -160,15 +213,24 @@ class Network:
                 self.deliver(leader, leader)
                 self.request_view_change()
                 continue
-            block = Block(len(self.ledger.chain), self.ledger.chain[-1].hash,
-                          tuple(self.ledger.pending_transactions), leader, self.tick,
-                          self.ledger.chain_id, self.ledger.chain[0].genesis_hash)
+            block = Block(
+                len(self.ledger.chain),
+                self.ledger.chain[-1].hash,
+                tuple(self.ledger.pending_transactions),
+                leader,
+                self.tick,
+                self.ledger.chain_id,
+                self.ledger.chain[0].genesis_hash,
+            )
             self.ledger.validate_block(block)
             prepare, commit = {}, {}
             for phase, votes in (("prepare", prepare), ("commit", commit)):
-                if phase == "commit" and not self.verify_certificate(block, prepare, "prepare", self.view):
+                if phase == "commit" and not self.verify_certificate(
+                    block, prepare, "prepare", self.view
+                ):
                     break
                 for name in self.validators:
+                    self.metrics["vote_opportunities"] += 1
                     participant = self.nodes[name]
                     if not self.deliver(leader, name) or not self.deliver(name, leader):
                         continue
@@ -182,17 +244,23 @@ class Network:
                     else:
                         self.node_metrics[name]["votes"] += 1
                     votes[name] = self.keys[name].sign(canonical(payload)).hex()
-            if (self.verify_certificate(block, prepare, "prepare", self.view)
-                    and self.verify_certificate(block, commit, "commit", self.view)):
+            if self.verify_certificate(
+                block, prepare, "prepare", self.view
+            ) and self.verify_certificate(block, commit, "commit", self.view):
                 self.ledger.add_block(block)
-                self.certificates.append({"height": block.index, "view": self.view,
-                                          "prepare": prepare, "commit": commit})
+                self.certificates.append(
+                    {"height": block.index, "view": self.view, "prepare": prepare, "commit": commit}
+                )
                 self.metrics["blocks"] += 1
                 self.metrics["committed_transactions"] += len(block.transactions)
                 for tx in block.transactions:
-                    self.processing_latencies.append((self.tick - self.pending_at.pop(tx.tx_hash, self.tick)) * 1000)
+                    self.processing_latencies.append(
+                        (self.tick - self.pending_at.pop(tx.tx_hash, self.tick)) * 1000
+                    )
                     if tx.tx_hash in self.transaction_records:
-                        self.transaction_records[tx.tx_hash].update(status="committed", committed_at=self.tick)
+                        self.transaction_records[tx.tx_hash].update(
+                            status="committed", committed_at=self.tick
+                        )
                 delay = (self.metrics["messages"] - start_messages) * self.config.latency_ms
                 self.block_delays.append(delay)
                 for name in self.nodes:
@@ -201,8 +269,13 @@ class Network:
                         self.propagation_delays.append(self.node_metrics[name]["latency_ms"])
                     else:
                         self.metrics["propagation_failures"] += 1
-                self.last_round = {"committed": True, "votes": len(commit), "leader": leader,
-                                   "height": block.index, "delay_ms": delay}
+                self.last_round = {
+                    "committed": True,
+                    "votes": len(commit),
+                    "leader": leader,
+                    "height": block.index,
+                    "delay_ms": delay,
+                }
                 return True
             self.request_view_change()
         self.metrics["stalls"] += 1
@@ -217,8 +290,13 @@ class Network:
         names = set().union(*(set(g) for g in groups))
         if names != set(self.nodes) or sum(map(len, groups)) != len(names):
             raise Rejected("invalid_partition")
-        self.partitions = {tuple(sorted((a, b))) for i, group in enumerate(groups)
-                           for other in groups[i + 1:] for a in group for b in other}
+        self.partitions = {
+            tuple(sorted((a, b)))
+            for i, group in enumerate(groups)
+            for other in groups[i + 1 :]
+            for a in group
+            for b in other
+        }
 
     def snapshot(self):
         return deepcopy({k: v for k, v in self.__dict__.items() if k not in ("keys", "wallet")})
@@ -230,13 +308,26 @@ class Network:
 
     def summary(self):
         m = self.metrics
-        return {**m, "simulated_seconds": self.tick,
-                "throughput": m["committed_transactions"] / max(1, self.tick),
-                "transaction_latency_ms": sum(self.processing_latencies) / max(1, len(self.processing_latencies)),
-                "message_latency_ms": sum(self.latencies) / max(1, len(self.latencies)),
-                "block_delay_ms": sum(self.block_delays) / max(1, len(self.block_delays)),
-                "propagation_delay_ms": sum(self.propagation_delays) / max(1, len(self.propagation_delays)),
-                "availability": sum(n.behavior != "unavailable" and not n.quarantined for n in self.nodes.values()) / len(self.nodes),
-                "participation": sum(s["votes"] for s in self.node_metrics.values()) / max(1, 2 * self.tick * len(self.validators)),
-                "voting_consistency": 1 - m["invalid_votes"] / max(1, m["invalid_votes"] + sum(s["votes"] for s in self.node_metrics.values())),
-                "height": len(self.ledger.chain) - 1, "quorum": self.quorum, "view": self.view}
+        return {
+            **m,
+            "simulated_seconds": self.tick,
+            "throughput": m["committed_transactions"] / max(1, self.tick),
+            "transaction_latency_ms": sum(self.processing_latencies)
+            / max(1, len(self.processing_latencies)),
+            "message_latency_ms": sum(self.latencies) / max(1, len(self.latencies)),
+            "block_delay_ms": sum(self.block_delays) / max(1, len(self.block_delays)),
+            "propagation_delay_ms": sum(self.propagation_delays)
+            / max(1, len(self.propagation_delays)),
+            "availability": sum(
+                n.behavior != "unavailable" and not n.quarantined for n in self.nodes.values()
+            )
+            / len(self.nodes),
+            "participation": sum(s["votes"] for s in self.node_metrics.values())
+            / max(1, m["vote_opportunities"]),
+            "voting_consistency": 1
+            - m["invalid_votes"]
+            / max(1, m["invalid_votes"] + sum(s["votes"] for s in self.node_metrics.values())),
+            "height": len(self.ledger.chain) - 1,
+            "quorum": self.quorum,
+            "view": self.view,
+        }

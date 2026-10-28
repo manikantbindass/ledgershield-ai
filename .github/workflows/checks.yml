@@ -1,21 +1,47 @@
 name: Verify LedgerShield
 on: [push, pull_request]
 jobs:
-  backend:
+  backend-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - run: pip install -r requirements.txt
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.lock -r requirements-dev.txt
       - run: python -m pytest -q
-  frontend:
+  backend-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.lock -r requirements-dev.txt
+      - run: python -m ruff check backend ledgershield tests migrations
+      - run: python -m ruff format --check backend ledgershield tests migrations
+      - run: python -m mypy
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ledger
+          POSTGRES_PASSWORD: disposable-ci-only
+          POSTGRES_DB: ledger_test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U ledger -d ledger_test" --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://ledger:disposable-ci-only@127.0.0.1:5432/ledger_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.lock -r requirements-dev.txt
+      - run: python -m pytest tests/test_persistence.py -q
+  frontend-checks:
     runs-on: ubuntu-latest
     defaults:
-      run:
-        working-directory: frontend
+      run: {working-directory: frontend}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,4 +51,45 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm test
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run: {working-directory: frontend}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
       - run: npm run build
+  configuration:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-disposable-password
+      GRAFANA_ADMIN_PASSWORD: ci-disposable-grafana
+      LEDGERSHIELD_OPERATOR_TOKEN: ci-operator-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      LEDGERSHIELD_ADMIN_TOKEN: ci-admin-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose --profile monitoring --profile cache config --quiet
+      - run: docker compose -f docker-compose.yml -f docker-compose.dev.yml config --quiet
+  container-builds:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-disposable-password
+      GRAFANA_ADMIN_PASSWORD: ci-disposable-grafana
+      LEDGERSHIELD_OPERATOR_TOKEN: ci-operator-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      LEDGERSHIELD_ADMIN_TOKEN: ci-admin-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f backend/Dockerfile -t ledgershield-api:ci .
+      - run: docker build -f frontend/Dockerfile -t ledgershield-ui:ci frontend
+      - run: docker compose up --build -d --wait --wait-timeout 180
+      - run: python scripts/smoke_stack.py
+      - if: always()
+        run: docker compose down

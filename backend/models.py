@@ -1,5 +1,7 @@
 """Versioned public API schemas. Private simulator keys are never modeled here."""
+
 from typing import Generic, Literal, TypeVar
+
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
 
 
@@ -108,6 +110,7 @@ class TrustResponse(BaseModel):
 
 
 class MetricsResponse(BaseModel):
+    vote_opportunities: int = 0
     submitted: int
     accepted: int
     rejected: int
@@ -193,6 +196,9 @@ class HealingResponse(BaseModel):
     collateral_nodes: list[str] = Field(default_factory=list)
     duration_ticks: int | None = None
     reason: str | None = None
+    safety_checks: dict = Field(default_factory=dict)
+    approval_required: bool = False
+    proposed_mode: str = "observe_only"
 
 
 class Scenario(Input):
@@ -219,7 +225,7 @@ class Reset(Input):
     timeout_ms: int = Field(default=200, gt=0, le=10000)
 
     @model_validator(mode="after")
-    def valid_membership(self):
+    def valid_membership(self) -> "Reset":
         if self.validator_count > self.node_count:
             raise ValueError("validator_count must not exceed node_count")
         return self
@@ -266,6 +272,8 @@ class ExperimentResponse(BaseModel):
     created_at: str
     storage: Literal["in_memory"] = "in_memory"
     scope: Literal["local_simulator_evaluation"] = "local_simulator_evaluation"
+    comparison_id: str | None = None
+    environment_config: dict = Field(default_factory=dict)
 
 
 class EventResponse(BaseModel):
@@ -290,3 +298,106 @@ class DashboardResponse(BaseModel):
     trust_audit: list[dict]
     transactions: list[TxPayload]
     blocks: list[BlockResponse]
+    instance_id: str
+    history: list[MetricsResponse]
+    partitioned_links: list[list[str]]
+    active_scenario: dict | None
+    recent_events: list[dict]
+
+
+class ScenarioRunRequest(Input):
+    kind: Literal[
+        "node_failure",
+        "delay",
+        "partition",
+        "suspicious_voting",
+        "sybil_like",
+        "conflicting_transactions",
+    ]
+    node_id: str = Field(default="node_1", min_length=1, max_length=64)
+    duration_rounds: int = Field(default=5, ge=1, le=20)
+    latency_ms: int = Field(default=300, ge=0, le=5000)
+
+
+class ScenarioRunResponse(BaseModel):
+    id: str
+    kind: str
+    node_id: str
+    duration_rounds: int
+    started_at: int
+    expires_at: int
+    ended_at: int | None
+    status: str
+    details: dict
+    scope: Literal["controlled_simulation"]
+
+
+class TrustHistoryResponse(BaseModel):
+    node_id: str
+    evidence_id: str
+    kind: str
+    timestamp: int
+    before: float
+    decayed: float
+    after: float
+    delta: float
+    confidence: float
+    verified: bool
+    provenance: str
+
+
+class AuditEvent(BaseModel):
+    id: str
+    timestamp: int
+    kind: str
+    summary: str
+    details: dict
+
+
+class SessionResponse(BaseModel):
+    role: Literal["viewer", "operator", "admin"]
+    permissions: list[str]
+
+
+class ComparisonRequest(Input):
+    episodes: int = Field(default=4, ge=1, le=4)
+    horizon: int = Field(default=10, ge=1, le=20)
+    seed: int = Field(default=20000, ge=10000, le=2**30)
+
+
+class ComparisonResponse(BaseModel):
+    id: str
+    experiments: list[ExperimentResponse]
+    matched_configuration: bool = True
+
+
+class BlockDetail(BaseModel):
+    block: BlockResponse
+    hash_valid: bool
+    parent_valid: bool
+    state_integrity: bool
+    consensus: Literal["genesis", "verified", "unverified"]
+
+
+class ModelMetadata(BaseModel):
+    status: Literal["trained", "untrained", "missing_or_invalid"]
+    updates: int
+    architecture: list[int]
+    live_policy: Literal["rule"] = "rule"
+    automatic_deployment: bool = False
+
+
+class TrainingEpisode(BaseModel):
+    episode: int
+    reward: float
+    loss: float | None = None
+
+
+class LearningResponse(BaseModel):
+    run_id: str | None
+    source: str
+    training: list[TrainingEpisode]
+    updates: int
+    evaluation: list[dict]
+    claim: str
+    model: ModelMetadata

@@ -36,3 +36,11 @@ Machine-readable results and all training episode rewards are in [measured-resul
 ## Scope limits
 
 Everything is a local, centralized simulator with volatile state. Auth provides two local roles, not deployment identity management. No database persistence/migrations, real P2P, full PBFT view-change proof, production security, automatically deployed RL policy or online learning is claimed. Docker execution and remote GitHub Actions results are unverified in this local validation. Screenshots are deferred until the user's final phase.
+
+
+## Phase 9 validation
+
+The expanded backend suite passes 72 tests. The new frontend suite passes 22 tests; frontend lint and production build pass. Scenario tests cover all six kinds, bounded expiry, restored settings, fixed membership, conflicts and real API comparison records. Frontend tests cover ten routes and operational workflows including permissions, filters, pagination, approvals, comparisons, themes and offline states. See DASHBOARD.md for visual-check coverage and limitations. CI now includes frontend tests.
+
+
+Latest QA additions: the complete 80-test backend suite passed, seven reward/horizon boundary checks passed, three matched-runner tests passed, and all 25 frontend tests passed. Scoped Python/TypeScript checks, Ruff/Prettier formatting, frontend lint/build, Compose profile/config validation and npm audit (zero known vulnerabilities) passed. The initial process-E2E startup probe failed with a one-second read timeout; a bounded readiness deadline fixed it and the full backend suite then passed. The cancellation error test also found and fixed cross-realm AbortError handling. No test was skipped to obtain these results. Docker Desktop did not provide a working local Linux engine; actual image/stack/PostgreSQL verification is assigned to the explicit CI jobs and is not claimed locally.

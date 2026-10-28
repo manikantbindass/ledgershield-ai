@@ -1,6 +1,7 @@
 import pytest
-from ledgershield.network import Network, NetworkConfig
+
 from ledgershield.core import Rejected
+from ledgershield.network import Network, NetworkConfig
 
 
 def test_seeded_consensus_with_one_failure():
@@ -37,7 +38,9 @@ def test_partition_stalls_without_lowering_quorum_and_recovers():
     assert net.round()
 
 
-@pytest.mark.parametrize("config", [NetworkConfig(loss=1), NetworkConfig(latency_ms=300), NetworkConfig()])
+@pytest.mark.parametrize(
+    "config", [NetworkConfig(loss=1), NetworkConfig(latency_ms=300), NetworkConfig()]
+)
 def test_unreachable_and_timeout(config):
     net = Network(config)
     net.nodes["node_0"].behavior = "faulty"

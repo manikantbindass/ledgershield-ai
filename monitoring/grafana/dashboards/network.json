@@ -1,0 +1,14 @@
+{
+  "uid": "ledgershield-network",
+  "title": "LedgerShield — simulator measurements",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {"from": "now-30m", "to": "now"},
+  "panels": [
+    {"id": 1, "title": "Canonical block height", "type": "timeseries", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}, "datasource": {"type": "prometheus", "uid": "ledger-prometheus"}, "targets": [{"expr": "ledgershield_height", "refId": "A"}]},
+    {"id": 2, "title": "Consensus stalls (simulator counter)", "type": "timeseries", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}, "datasource": {"type": "prometheus", "uid": "ledger-prometheus"}, "targets": [{"expr": "ledgershield_stalls", "refId": "A"}]},
+    {"id": 3, "title": "Mean simulated message delay (ms)", "type": "timeseries", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}, "datasource": {"type": "prometheus", "uid": "ledger-prometheus"}, "targets": [{"expr": "ledgershield_message_latency_ms", "refId": "A"}]},
+    {"id": 4, "title": "Recovery outcomes", "type": "timeseries", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}, "datasource": {"type": "prometheus", "uid": "ledger-prometheus"}, "targets": [{"expr": "ledgershield_recovery_successes", "legendFormat": "verified", "refId": "A"}, {"expr": "ledgershield_recovery_failures", "legendFormat": "rollback", "refId": "B"}]}
+  ]
+}

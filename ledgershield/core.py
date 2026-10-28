@@ -1,8 +1,9 @@
 """Canonical Ed25519 transfers, atomic account execution, and hash-linked blocks."""
-from copy import deepcopy
-from dataclasses import asdict, dataclass, field
+
 import hashlib
 import json
+from copy import deepcopy
+from dataclasses import asdict, dataclass, field
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
@@ -16,8 +17,9 @@ class Rejected(ValueError):
 
 
 def canonical(value):
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
-                      allow_nan=False).encode("ascii")
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False
+    ).encode("ascii")
 
 
 def digest(value):
@@ -70,7 +72,8 @@ class Transaction:
             if len(bytes.fromhex(self.receiver)) != 32 or len(bytes.fromhex(self.sender)) != 32:
                 raise ValueError("invalid identity")
             Ed25519PublicKey.from_public_bytes(bytes.fromhex(self.sender)).verify(
-                bytes.fromhex(self.signature), canonical(self.payload()))
+                bytes.fromhex(self.signature), canonical(self.payload())
+            )
         except (ValueError, TypeError, InvalidSignature) as exc:
             raise Rejected("invalid_signature_or_identity") from exc
 
@@ -83,8 +86,7 @@ def merkle_root(transactions):
     while len(level) > 1:
         if len(level) % 2:
             level.append(level[-1])
-        level = [hashlib.sha256(level[i] + level[i + 1]).digest()
-                 for i in range(0, len(level), 2)]
+        level = [hashlib.sha256(level[i] + level[i + 1]).digest() for i in range(0, len(level), 2)]
     return level[0].hex()
 
 
@@ -105,11 +107,16 @@ class Block:
             object.__setattr__(self, "hash", self.compute_hash())
 
     def payload(self):
-        return {"index": self.index, "previous_hash": self.previous_hash,
-                "transactions": [tx.to_dict() for tx in self.transactions],
-                "merkle_root": merkle_root(self.transactions), "validator": self.validator,
-                "timestamp": self.timestamp, "chain_id": self.chain_id,
-                "genesis_hash": self.genesis_hash}
+        return {
+            "index": self.index,
+            "previous_hash": self.previous_hash,
+            "transactions": [tx.to_dict() for tx in self.transactions],
+            "merkle_root": merkle_root(self.transactions),
+            "validator": self.validator,
+            "timestamp": self.timestamp,
+            "chain_id": self.chain_id,
+            "genesis_hash": self.genesis_hash,
+        }
 
     def compute_hash(self):
         return digest(self.payload())
@@ -133,8 +140,9 @@ class LedgerState:
         self.nonces = {}
         self.seen = set()
         self.pending_transactions = []
-        config_hash = digest({"chain_id": chain_id, "allocations": self.allocations,
-                              "timestamp": genesis_timestamp})
+        config_hash = digest(
+            {"chain_id": chain_id, "allocations": self.allocations, "timestamp": genesis_timestamp}
+        )
         self.chain = [Block(0, "0" * 64, (), "genesis", genesis_timestamp, chain_id, config_hash)]
 
     def execute(self, transactions, accounts=None, nonces=None, seen=None):

@@ -1,8 +1,9 @@
 """Two local bearer-token roles. No credentials in API output or request logs."""
-from collections import defaultdict, deque
-from hmac import compare_digest
+
 import os
 import time
+from collections import defaultdict, deque
+from hmac import compare_digest
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -11,8 +12,9 @@ bearer = HTTPBearer(auto_error=False)
 
 
 def configured_tokens():
-    tokens = {role: os.getenv(f"LEDGERSHIELD_{role.upper()}_TOKEN", "")
-              for role in ("operator", "admin")}
+    tokens = {
+        role: os.getenv(f"LEDGERSHIELD_{role.upper()}_TOKEN", "") for role in ("operator", "admin")
+    }
     for token in tokens.values():
         if token and len(token) < 32:
             raise ValueError("Configured API tokens must contain at least 32 characters")
@@ -21,12 +23,16 @@ def configured_tokens():
     return tokens
 
 
-async def principal(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(bearer)):
+async def principal(
+    request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(bearer)
+):
     tokens = request.app.state.tokens
     if not any(tokens.values()):
         raise HTTPException(503, detail="authentication_unconfigured")
     if not credentials or credentials.scheme.lower() != "bearer":
-        raise HTTPException(401, detail="authentication_required", headers={"WWW-Authenticate": "Bearer"})
+        raise HTTPException(
+            401, detail="authentication_required", headers={"WWW-Authenticate": "Bearer"}
+        )
     # Header bytes can be non-ASCII; compare_digest(str) requires ASCII.
     supplied = credentials.credentials.encode("utf-8")
     for role, token in tokens.items():
@@ -40,6 +46,7 @@ def require_role(minimum="operator"):
         if minimum == "admin" and role != "admin":
             raise HTTPException(403, detail="admin_role_required")
         return role
+
     return authorized
 
 
@@ -54,7 +61,9 @@ class RateLimiter:
             queue.popleft()
         if len(queue) >= limit:
             retry = max(1, int(window - (now - queue[0])) + 1)
-            raise HTTPException(429, detail="rate_limit_exceeded", headers={"Retry-After": str(retry)})
+            raise HTTPException(
+                429, detail="rate_limit_exceeded", headers={"Retry-After": str(retry)}
+            )
         queue.append(now)
 
 
