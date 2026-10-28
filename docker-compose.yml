@@ -1,56 +1,19 @@
-version: '3.8'
-
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: autoledger
-      POSTGRES_PASSWORD: autoledgerpassword
-      POSTGRES_DB: autoledger_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-      - kafka
+      - "127.0.0.1:8000:8000"
     environment:
-      - DATABASE_URL=postgresql://autoledger:autoledgerpassword@postgres:5432/autoledger_db
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-
+      RECOVERY_MODE: observe_only
+      LEDGERSHIELD_OPERATOR_TOKEN: ${LEDGERSHIELD_OPERATOR_TOKEN:-}
+      LEDGERSHIELD_ADMIN_TOKEN: ${LEDGERSHIELD_ADMIN_TOKEN:-}
   frontend:
     build: ./frontend
+    environment:
+      API_TARGET: http://backend:8000
     ports:
-      - "3000:3000"
+      - "127.0.0.1:5173:5173"
     depends_on:
       - backend
-
-volumes:
-  postgres_data:

@@ -1,0 +1,98 @@
+{
+  "training": {
+    "episodes": 40,
+    "updates": 769,
+    "seeds": [
+      100,
+      139
+    ],
+    "episode_rewards": [
+      21.30109,
+      25.0329,
+      35.77172,
+      27.26783,
+      22.46461,
+      22.01251,
+      34.85194,
+      21.23164,
+      24.45487,
+      28.6498,
+      35.66777,
+      30.81544,
+      29.59383,
+      29.5145,
+      36.49592,
+      31.93101,
+      27.3027,
+      30.97779,
+      34.80047,
+      33.91685,
+      31.52433,
+      33.62275,
+      35.61664,
+      34.32935,
+      30.48388,
+      34.69812,
+      36.00039,
+      34.97158,
+      29.49073,
+      34.98306,
+      35.04767,
+      33.93833,
+      34.49899,
+      35.1991,
+      34.96577,
+      34.50176,
+      33.49685,
+      33.98312,
+      35.01228,
+      35.01572
+    ]
+  },
+  "evaluation": [
+    {
+      "policy": "no_healing",
+      "episodes": 12,
+      "seeds": [
+        10000,
+        10011
+      ],
+      "mean_reward": 35.25279,
+      "committed_transactions": 240,
+      "recoveries": 0
+    },
+    {
+      "policy": "rule",
+      "episodes": 12,
+      "seeds": [
+        10000,
+        10011
+      ],
+      "mean_reward": 35.20214,
+      "committed_transactions": 240,
+      "recoveries": 6
+    },
+    {
+      "policy": "dqn",
+      "episodes": 12,
+      "seeds": [
+        10000,
+        10011
+      ],
+      "mean_reward": 34.25279,
+      "committed_transactions": 240,
+      "recoveries": 0
+    }
+  ],
+  "claim": "Measured toy-simulator results only; no guarantee of improvement or generalization.",
+  "detector": {
+    "training_seed": 101,
+    "evaluation_seed": 202,
+    "train_normal_only": true,
+    "evaluation_rows": 500,
+    "true_positives": 100,
+    "false_positives": 20,
+    "true_negatives": 380,
+    "false_negatives": 0
+  }
+}

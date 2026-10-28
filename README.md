@@ -1,328 +1,200 @@
 <div align="center">
 
-![Header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=300&section=header&text=AutoLedgerAI&fontSize=90&fontColor=fff&animation=fadeIn&fontAlignY=38&desc=Self-Healing%20Blockchain%20Network%20with%20Reinforcement%20Learning&descAlignY=55&descSize=25)
+![LedgerShield animated validator network](docs/assets/header.svg)
 
-[![Blockchain](https://img.shields.io/badge/Blockchain-121D33?style=for-the-badge&logo=blockchain.com&logoColor=white)](https://github.com/manikantbindass/AutoLedgerAI-Self-healing-blockchain-network-using-reinforcement-learning)
-[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white)](https://kafka.apache.org/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
+**A local research platform for explainable blockchain resilience.**
+
+[Overview](#why-ledgershield) · [Run locally](#run-locally) · [API contracts](docs/API.md) · [Experiments](#reproducible-experiments) · [Architecture](docs/architecture.md) · [Validation](docs/VALIDATION.md)
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/UI-React_19-61DAFB?style=flat-square&logo=react&logoColor=white)
+![Scope](https://img.shields.io/badge/Scope-local_research_simulator-8de9c0?style=flat-square)
 
 </div>
 
----
+## Why LedgerShield?
 
-## 🎯 **Project Objective**
+A blockchain network needs more than linked hashes to remain reliable. Transactions must be authenticated, validators must reach agreement, failures must be measured, and recovery decisions need evidence and safety limits.
 
-**AutoLedgerAI** is a production-grade, self-healing blockchain network that uses **Reinforcement Learning (RL)** agents to autonomously detect malicious nodes, adjust consensus parameters, and maintain high availability. The system assigns **adaptive trust scores** to nodes and makes intelligent decisions to ensure network security and performance.
+**LedgerShield** explores that loop in a repeatable local simulator: submit a signed transfer, introduce a node fault, observe its effect on consensus, inspect detection evidence and trust changes, then evaluate a guarded recovery action. A React observatory shows real simulator counters and decisions through FastAPI and WebSockets.
 
----
+Previously named AutoLedgerAI, this project is an **educational research prototype**. Its centralized simulator is useful for experiments; it is not a formally verified Byzantine protocol or a production financial network. The API uses a rule policy; DQN training and comparison run explicitly offline.
 
-## 🧠 **Core Features**
+## What is implemented
 
-<table>
-<tr>
-<td width="33%" valign="top">
+| Area | Current behavior |
+| --- | --- |
+| Transactions | Ed25519 signatures, public-key identities, integer amounts, chain IDs, nonces, duplicate/replay checks and atomic balance validation |
+| Ledger | Ordered execution, configurable genesis allocations, hash-linked blocks, Merkle roots and full state replay/integrity checking |
+| Consensus simulation | Fixed validator membership, signed prepare/commit certificates, `floor(2N/3)+1` quorum, bounded leader replacement and recorded stalls |
+| Network faults | Seeded latency/jitter, loss, timeouts, partitions, honest/faulty/unavailable/simulated malicious participants |
+| Telemetry | Submission/commit/rejection counts, simulated throughput and latency, propagation, votes, availability, stalls and recovery outcomes |
+| Detection | Rule checks, Isolation Forest baseline, severity/confidence, structured evidence and duplicate suppression |
+| Trust | Bounded configurable scores, evidence provenance, time decay, duplicate protection and before/after audit records |
+| Recovery | Observe-only default, human approval mode, autonomous simulator mode, quorum guards, cooldowns, retries, idempotency and rollback |
+| Learning | Seeded Gymnasium environment, no-healing/rule baselines, NumPy DQN with replay/target network, checkpoint save/load and held-out evaluation |
+| Dashboard | Reconnecting live stream, node scenarios, signed demo transfers, consensus/metrics, alerts, operating modes and approval journal |
 
-### 🔍 **Node Monitoring**
-- Real-time transaction validation tracking
-- Block propagation delay analysis  
-- Voting pattern detection
-- Network latency metrics
-- Behavioral anomaly detection
+**Not yet implemented:** durable database records, real peer-to-peer networking, deployment identity management, complete distributed PBFT view changes, automatic DQN deployment, or validated production security. The initial findings are in the [implementation audit](docs/IMPLEMENTATION_AUDIT.md).
 
-</td>
-<td width="33%" valign="top">
+**Backend v1:** typed and paginated network/ledger/evidence/recovery APIs, operator/admin authorization, request IDs, structured logs, rate-limited policy evaluation, in-memory experiments and event streams. See the [API contracts and role matrix](docs/API.md).
 
-### ⚠️ **Malicious Detection**
-- Sybil attack identification
-- Double-spending prevention
-- Abnormal voting detection
-- Isolation Forest algorithm
-- Graph-based anomaly analysis
+## How the resilience loop works
 
-</td>
-<td width="33%" valign="top">
-
-### 🤖 **RL Agent (DQN/PPO)**
-- Dynamic consensus adjustment
-- Node penalty system
-- Validator reassignment
-- Autonomous healing decisions
-- Reward-based optimization
-
-</td>
-</tr>
-</table>
-
----
-
-## 🏗️ **System Architecture**
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         AutoLedgerAI System                          │
-└─────────────────────────────────────────────────────────────────────┘
-
-      ┌──────────────┐         ┌──────────────┐
-      │  React.js    │◄────────┤  FastAPI     │
-      │  Dashboard   │         │  Backend     │
-      └──────────────┘         └──────┬───────┘
-             ▲                        │
-             │                        │
-             │                ┌───────▼────────┐
-             │                │  Blockchain    │
-             │                │  Core (PBFT)   │
-             │                └───────┬────────┘
-             │                        │
-      ┌──────┴──────┐         ┌───────▼────────┐
-      │  Grafana    │         │  RL Agent      │
-      │  Monitoring │◄────────┤  (DQN/PPO)     │
-      └─────────────┘         └───────┬────────┘
-                                      │
-           ┌──────────────────────────┼──────────────────────────┐
-           │                          │                          │
-      ┌────▼────┐              ┌──────▼──────┐          ┌────────▼────┐
-      │ Trust   │              │  Detection  │          │   Kafka     │
-      │ System  │              │  Engine     │          │   Stream    │
-      └─────────┘              └─────────────┘          └─────────────┘
-                                      │
-                               ┌──────▼──────┐
-                               │  MongoDB    │
-                               │  Database   │
-                               └─────────────┘
+```mermaid
+flowchart LR
+    A[Signed transfer] --> B[Validate and stage]
+    B --> C[Simulated prepare / commit]
+    C --> D[Atomic ledger execution]
+    C --> E[Measured telemetry]
+    E --> F[Rules + anomaly indicators]
+    F --> G[Explainable trust + policy proposal]
+    G --> H[Mode / approval / quorum guards]
+    H --> I[Reversible simulator action]
+    I --> J[Verify recovery / rollback / audit]
+    J --> E
+    E --> K[Live observatory]
 ```
 
----
+An anomaly is an indicator, not proof of intent. Quarantine requires verified evidence and preserves the original quorum. Missing validators never cause the system to weaken consensus requirements. A recovery is marked successful only after the simulator commits again within its verification budget.
 
-## 🔄 **RL Decision Loop**
+## Run locally
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                   RL Agent Decision Cycle                      │
-└────────────────────────────────────────────────────────────────┘
-
-  ┌─────────────┐
-  │   STATE     │  ← Node metrics, trust scores, network health
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │   AGENT     │  ← DQN/PPO Policy Network
-  │  (Policy)   │
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │   ACTION    │  ← Adjust threshold, remove node, rescale validators
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │  REWARD     │  ← +1 for improved performance, -1 for attack success
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │ ENVIRONMENT │  ← Blockchain network state updated
-  └─────────────┘
-         │
-         └──────► Back to STATE
-```
-
----
-
-## 📂 **Project Structure**
-
-```
-AutoLedgerAI/
-│
-├── blockchain/
-│   ├── core/              # Block, Transaction, Ledger, Crypto
-│   ├── consensus/         # PBFT, PoS, Consensus Manager
-│   └── networking/        # P2P Node, Message Types
-│
-├── rl-agent/
-│   ├── environment/       # Custom Gym Environment
-│   ├── models/            # DQN/PPO Agent
-│   └── training/          # Training Scripts
-│
-├── trust-system/
-│   ├── scoring.py         # Dynamic Trust Score Calculation
-│   └── reputation_engine.py
-│
-├── detection-engine/
-│   └── anomaly_detection.py  # Isolation Forest, Graph Analysis
-│
-├── backend/
-│   ├── api/               # REST & WebSocket Routes
-│   └── services/          # DB, Kafka, Blockchain Client
-│
-├── frontend/
-│   └── dashboard/         # React + TailwindCSS Dashboard
-│
-├── scripts/
-│   ├── simulate_attack.py # Malicious Node Simulation
-│   ├── node_behavior.py   # Node Behavior Generator
-│   └── setup.sh           # One-Command Setup
-│
-├── configs/
-│   ├── kafka.yml
-│   ├── env.example
-│   └── network_config.yml
-│
-└── docs/
-    ├── SRS.md             # Software Requirements Spec
-    ├── architecture.md    # Detailed System Design
-    └── setup-guide.md     # Step-by-Step Setup
-```
-
----
-
-## 🚀 **Quick Start (One Command)**
+Use **Python 3.12** and **Node.js 24**. All commands start at the repository root unless a different directory is shown. The dashboard needs no database, Kafka, PyTorch or model checkpoint.
 
 ```bash
-# Clone the repository
-git clone https://github.com/manikantbindass/AutoLedgerAI-Self-healing-blockchain-network-using-reinforcement-learning.git
-cd AutoLedgerAI-Self-healing-blockchain-network-using-reinforcement-learning
-
-# Run setup script (installs all dependencies and starts services)
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+git clone https://github.com/manikantbindass/LedgerShield.git
+cd LedgerShield
 ```
 
-### **Alternative: Docker Compose**
+### Windows / PowerShell
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe scripts/create_local_tokens.py
+
+# Terminal 1: local simulator API
+.\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
+
+# Terminal 2: dashboard
+cd frontend
+npm ci
+npm run dev -- --port 5173 --strictPort
+```
+
+### macOS / Linux
 
 ```bash
-# Copy environment file
-cp configs/env.example .env
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python scripts/create_local_tokens.py
+.venv/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
 
-# Start all services
-docker-compose up --build
-
-# Access dashboard
-open http://localhost:3000
+# In another terminal
+cd frontend
+npm ci
+npm run dev -- --port 5173 --strictPort
 ```
 
----
+Open the [observatory](http://127.0.0.1:5173), [API documentation](http://127.0.0.1:8000/docs), or [integrity probe](http://127.0.0.1:8000/api/v1/health). Copy your locally generated operator/admin token from the ignored `.env` file into the dashboard password field. It stays only in tab memory. Admin access is required for reset, recovery mode changes and approvals.
 
-## 🧪 **Test Scenarios**
+The simulator starts paused. **Start simulation** enables one background round every two wall-clock seconds; **Advance round** runs a manual round. Additional viewers do not advance the network. Vite proxies versioned HTTP/WebSocket requests to the API. Settings in [.env.example](.env.example) are optional except the tokens needed for mutations. Empty tokens disable controls. Reset returns to paused observe-only mode; restart discards all in-memory state. Keep both services bound to loopback.
 
-| **Attack Type**       | **Detection Method**       | **RL Action**            | **Expected Result**        |
-|-----------------------|----------------------------|--------------------------|----------------------------|
-| Sybil Attack          | Graph-based clustering     | Remove malicious nodes   | Network stabilizes         |
-| Double Spending       | Transaction validation     | Penalize trust score     | Attack prevented           |
-| Malicious Validator   | Voting pattern analysis    | Reassign validators      | Consensus maintained       |
-| Node Failure          | Latency spike detection    | Trigger node recovery    | Self-healing activated     |
+### Docker alternative
 
----
+```bash
+docker compose up --build
+```
 
-## 🔐 **Security Features**
+Generate the local `.env` first; Compose passes API tokens to the backend. The same ports are exposed on loopback. Docker configuration is supplied; the local Python/Node workflow is the validated path for this phase.
 
-- **SHA-256 Hashing** for block integrity
-- **Digital Signatures** for transaction verification
-- **RBAC** (Role-Based Access Control) for node permissions
-- **End-to-End Encryption** for P2P communication
-- **JWT Authentication** for API security
+## Try a controlled fault
 
----
+1. Enter a local API token, then click **Signed demo transfer**, then **Advance round**. Check committed transfers and block height.
+2. Set `node_1` to **malicious**. Its wrong-hash signatures become verified invalid-vote evidence. Three honest validators can still commit with a four-validator membership.
+3. Review **Evidence & alerts** and **Recovery journal**. Observe-only mode records proposals without intervention.
+4. Choose **Human approval required**, reset the scenario or introduce new evidence, and approve a pending proposal before it expires. The quorum guard is rechecked at execution.
+5. To explore a stall, set two validators to **unavailable**. Consensus must stall rather than reduce quorum. Restore a validator to **honest**, then advance a round.
 
-## 📊 **RL Design**
+Transport settings and partitions are available through `/api/v1/simulation/reset` and `/api/v1/simulation/partition`. Recovery approval requires a proposal generated while approval mode is active; old observe-only proposals are not retroactively executed. All autonomous disruptive actions stay inside this simulator.
 
-### **State Space**
-- Node trust scores (n-dimensional vector)
-- Transaction success rate
-- Block propagation time
-- Voting consistency metric
+## Signed transaction example
 
-### **Action Space**
-- Adjust consensus threshold (±0.1)
-- Remove node from network
-- Reassign validator role
-- Trigger ledger re-sync
+The demo wallet uses public, reproducible simulator keys and a fixed genesis allocation. **Never use those keys for real funds.** External transactions need their own funded genesis account and valid signatures.
 
-### **Reward Function**
 ```python
-reward = (
-    +1.0 * (throughput / max_throughput) +
-    -0.5 * (latency / max_latency) +
-    +2.0 * (successful_attack_prevention) +
-    -2.0 * (false_positive_rate)
-)
+from ledgershield.core import LedgerState, Transaction, demo_key, public_key
+
+alice = demo_key(42, "alice")  # Simulator identity only
+bob = public_key(demo_key(42, "bob"))
+ledger = LedgerState({public_key(alice): 100})
+tx = Transaction.signed(alice, bob, amount=10, nonce=0)
+ledger.submit(tx)  # Validated and staged, not yet committed
 ```
 
----
+`POST /api/v1/transactions` accepts `tx.to_dict()`. A mempool acceptance is distinct from a consensus commit. Account balances and sequential nonces prevent conflicting execution in the shared canonical ledger; hash chaining by itself does not prevent double spending.
 
-## 📚 **Documentation**
+## Reproducible experiments
 
-| File | Description |
-|------|-------------|
-| [SRS.md](docs/SRS.md) | Complete software requirements specification |
-| [architecture.md](docs/architecture.md) | Detailed system architecture and design patterns |
-| [setup-guide.md](docs/setup-guide.md) | Step-by-step installation and deployment guide |
+From the root, with the virtual environment's Python:
 
----
+```powershell
+# Independent synthetic train/evaluation CSVs and detector confusion counts
+.\.venv\Scripts\python.exe scripts/generate_dataset.py
 
-## 🛠️ **Tech Stack**
+# Explicit offline training, checkpointing and held-out policy comparison
+.\.venv\Scripts\python.exe -m ledgershield.learning --episodes 40 --output artifacts/experiment
+```
 
-| Component | Technology |
-|-----------|-----------|
-| **Blockchain** | Python (Custom Implementation) |
-| **Consensus** | PBFT + PoS Hybrid |
-| **RL Framework** | PyTorch / TensorFlow |
-| **Backend** | FastAPI |
-| **Frontend** | React.js + TailwindCSS |
-| **Database** | MongoDB |
-| **Messaging** | Apache Kafka |
-| **Monitoring** | Grafana + Prometheus |
-| **Containerization** | Docker + Docker Compose |
+The experiment writes `dqn.json` and `experiment.json`, including per-episode rewards, network metrics, seeds, weights and evaluation results. Training uses seeds 100–139; evaluation uses 10000–10011 for identical scenario comparisons across policies. The four toy scenarios are honest, unavailable, malicious and faulty target behavior. The detector fits only normal synthetic training rows at seed 101; evaluation rows use seed 202. Generated datasets and checkpoints are ignored by Git.
 
----
+The DQN is a small **NumPy** neural network with experience replay and a target network. This keeps the working local path lightweight. Original PyTorch actor/critic code remains an independent historical research helper; it is not advertised as a working PPO implementation. Missing/invalid checkpoints use a safe rule fallback through `load_policy`.
 
-## 📈 **Roadmap**
+Actual measured comparison and limitations are in [validation results](docs/VALIDATION.md). Training runs do not establish that a policy improves resilience. This phase's measured DQN did **not** beat the no-healing baseline.
 
-- [x] Core blockchain implementation
-- [x] RL agent (DQN/PPO)
-- [x] Trust scoring system
-- [x] Malicious node detection
-- [x] Self-healing mechanism
-- [ ] Multi-chain support
-- [ ] Federated RL agents
-- [ ] DAO governance integration
-- [ ] Cross-chain healing protocols
+## Verification
 
----
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+cd frontend
+npm run lint
+npm run build
+npm audit
+```
 
-## 🤝 **Contributing**
+Tests cover valid/tampered blocks, signatures, replay, duplicate/conflicting transfers, atomic execution, chain state, fixed quorums, failure/partition scenarios, seeded repeatability, certificate phase/view binding, evidence suppression, trust bounds, approvals, rollback, Gymnasium compatibility, DQN updates/checkpoints and API/WebSocket behavior. GitHub Actions runs backend tests plus frontend lint/build.
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## Repository map
 
----
+```text
+ledgershield/
+  core.py           Signed transactions, blocks, Merkle roots, ledger
+  network.py        Seeded transport, validator identities, voting and metrics
+  evidence.py       Detection, synthetic features, trust and audit
+  recovery.py       Policy proposals, guards, approvals and rollback
+  learning.py       Gymnasium environment, DQN and reproducible experiment CLI
+  service.py        Telemetry → evidence → trust → recovery integration
+backend/main.py     Versioned API, bearer roles, event stream, bounded evaluations
+frontend/           React + Vite observatory
+blockchain/         Compatibility exports into the canonical implementation
+detection-engine/   Original independent anomaly/graph research helpers
+trust-system/       Original independent trust research helper
+rl-agent/           Historical research code and redirected trainer entry point
+scripts/            Dataset generator and legacy HTTP traffic scripts
+tests/              Unit and deterministic integration tests
+docs/               Audit, architecture, roadmap, validation and SVG animations
+```
 
-## 📝 **License**
+The legacy traffic scripts are not protocol-level Sybil/double-spend demonstrations; use the dashboard and signed API instead. The [architecture notes](docs/architecture.md) describe state equations, quorum assumptions, observation/action spaces, rewards and simulator limitations.
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+## Project status and next phase
 
----
+- Implemented and locally verified: signed ledger, controlled simulator, evidence/trust/recovery pipeline, offline learning experiments and connected observatory.
+- Next: durable persistence, richer failure experiments, deployment identity management and stronger distributed protocol modeling, according to the [roadmap](docs/ROADMAP.md).
+- **Screenshots:** will be captured from the completed local app and added here after the final phase. No mock screenshots are included.
 
-## 📧 **Contact**
+Maintained by [Manikant Kumar](https://github.com/manikantbindass). See [contribution guidance](CONTRIBUTING.md). A license file has not yet been selected; this README does not grant an MIT license.
 
-**Manikant Kumar**  
-📧 Email: [manikantbindass@gmail.com](mailto:manikantbindass@gmail.com)  
-🔗 GitHub: [@manikantbindass](https://github.com/manikantbindass)  
-💼 LinkedIn: [Manikant Kumar](https://www.linkedin.com/in/manikantbindass/)
-
----
-
-<div align="center">
-
-![Footer](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=150&section=footer)
-
-**⭐ Star this repo if you find it useful!**
-
-</div>
+![LedgerShield animated recovery signal](docs/assets/footer.svg)
