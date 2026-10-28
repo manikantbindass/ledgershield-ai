@@ -1,5 +1,6 @@
 from collections import deque
 from dataclasses import asdict
+from time import time_ns
 from uuid import uuid4
 
 from .evidence import Detector, TrustEngine
@@ -19,6 +20,7 @@ class Service:
         self.running = False
         self.scenarios = []
         self.instance_id = str(uuid4())
+        self.instance_started_at_ns = str(time_ns())
         self.history = deque(maxlen=240)
         self.events = deque(maxlen=500)
         self.event_counter = 0
@@ -73,6 +75,7 @@ class Service:
                 "alert", alert["method"], {"alert_id": alert["id"], "node_id": alert["node_id"]}
             )
         self.scenario_runs.expire()
+        self.recovery.expire_pending()
         self.history.append(self.state_metrics())
         self.event(
             "consensus",
@@ -99,6 +102,8 @@ class Service:
             "project": "LedgerShield",
             "scope": "local research simulator",
             "instance_id": self.instance_id,
+            "instance_started_at_ns": self.instance_started_at_ns,
+            "revision": self.event_counter,
             "history": list(self.history),
             "partitioned_links": [list(p) for p in sorted(net.partitions)],
             "active_scenario": self.scenario_runs.active,

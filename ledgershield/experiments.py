@@ -215,6 +215,20 @@ def run_comparison(
     report = {
         "schema_version": 1,
         "configuration": {
+            "implementation_sha256": hashlib.sha256(
+                b"".join(
+                    (Path(__file__).parent / name).read_bytes()
+                    for name in (
+                        "core.py",
+                        "network.py",
+                        "service.py",
+                        "recovery.py",
+                        "evidence.py",
+                        "learning.py",
+                        "experiments.py",
+                    )
+                )
+            ).hexdigest(),
             "seeds": list(seeds),
             "horizon": horizon,
             "scenarios": selected,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DashboardContext } from './lib/context'
-import { request } from './lib/utils'
+import { assertSnapshot, newestSnapshot, request } from './lib/utils'
 
 export default function LiveProvider({ children }) {
   const [snapshot, setSnapshot] = useState(null)
@@ -29,11 +29,16 @@ export default function LiveProvider({ children }) {
   useEffect(() => {
     let closed = false,
       timer,
-      attempts = 0
+      attempts = 0,
+      lastSnapshotAt = Date.now(),
+      receivedLiveSnapshot = false
     const controller = new AbortController()
     request('/network/state', { signal: controller.signal })
       .then((data) => {
-        if (!closed) setSnapshot(data)
+        if (!closed && !receivedLiveSnapshot) {
+          const next = assertSnapshot(data)
+          setSnapshot((previous) => newestSnapshot(previous, next))
+        }
       })
       .catch((error) => {
         if (!closed && error.name !== 'AbortError') report(error)
@@ -44,30 +49,45 @@ export default function LiveProvider({ children }) {
         `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/api/v1/ws`,
       )
       socket.current = ws
+      lastSnapshotAt = Date.now()
       ws.onmessage = (event) => {
+        if (closed || socket.current !== ws) return
         try {
           const message = JSON.parse(event.data)
           if (message.type === 'snapshot') {
-            setSnapshot(message.data)
+            const next = assertSnapshot(message.data)
+            receivedLiveSnapshot = true
+            lastSnapshotAt = Date.now()
+            setSnapshot((previous) => newestSnapshot(previous, next))
             setLastSeen(Date.now())
             setConnection('live')
             attempts = 0
           }
-        } catch {
-          report(new Error('An unreadable live update was ignored.'))
+        } catch (error) {
+          report(error)
+          setConnection('offline')
+          ws.close()
         }
       }
       ws.onclose = () => {
-        if (closed) return
+        if (closed || socket.current !== ws) return
+        socket.current = null
         setConnection('offline')
         timer = setTimeout(connect, Math.min(10000, 1000 * 2 ** attempts++))
       }
       ws.onerror = () => ws.close()
     }
     connect()
+    const watchdog = setInterval(() => {
+      if (socket.current && Date.now() - lastSnapshotAt >= 10000) {
+        setConnection('offline')
+        socket.current.close()
+      }
+    }, 1000)
     return () => {
       closed = true
       clearTimeout(timer)
+      clearInterval(watchdog)
       controller.abort()
       socket.current?.close()
     }
@@ -77,7 +97,8 @@ export default function LiveProvider({ children }) {
     setRevision((value) => value + 1)
     try {
       const fresh = await request('/network/state')
-      setSnapshot(fresh)
+      const next = assertSnapshot(fresh)
+      setSnapshot((previous) => newestSnapshot(previous, next))
       setLastSeen(Date.now())
     } catch (error) {
       report(error)
@@ -92,11 +113,23 @@ export default function LiveProvider({ children }) {
       setNotice(null)
       try {
         const result = await request(path, { method: 'POST', body, token })
-        const fresh = await request('/network/state')
-        setSnapshot(fresh)
-        setLastSeen(Date.now())
-        setNotice({ type: 'success', message: success })
-        refresh()
+        try {
+          const fresh = await request('/network/state')
+          const next = assertSnapshot(fresh)
+          setSnapshot((previous) => newestSnapshot(previous, next))
+          setLastSeen(Date.now())
+          setNotice({ type: 'success', message: success })
+        } catch (error) {
+          setConnection('offline')
+          report({
+            ...error,
+            code: 'state_refresh_failed',
+            requestId: error.requestId,
+            message:
+              'The action completed, but its latest state could not be loaded. Inspect the state before retrying.',
+          })
+        }
+        setRevision((value) => value + 1)
         return result
       } catch (error) {
         report(error)
@@ -106,7 +139,7 @@ export default function LiveProvider({ children }) {
         setBusy(false)
       }
     },
-    [token, refresh, report],
+    [token, report],
   )
   const login = async (value) => {
     try {

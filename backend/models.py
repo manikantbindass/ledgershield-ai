@@ -110,6 +110,7 @@ class TrustResponse(BaseModel):
 
 
 class MetricsResponse(BaseModel):
+    transport_elapsed_ms: int = 0
     vote_opportunities: int = 0
     submitted: int
     accepted: int
@@ -182,6 +183,8 @@ class HealthResponse(BaseModel):
 
 
 class HealingResponse(BaseModel):
+    policy_error: str | None = None
+    attempt_metrics: dict[str, int | float] | None = None
     id: str
     node_id: str
     action: str
@@ -284,6 +287,8 @@ class EventResponse(BaseModel):
 
 
 class DashboardResponse(BaseModel):
+    instance_started_at_ns: str = "0"
+    revision: int = 0
     project: str
     scope: str
     running: bool
@@ -401,3 +406,58 @@ class LearningResponse(BaseModel):
     evaluation: list[dict]
     claim: str
     model: ModelMetadata
+
+
+class LivenessResponse(BaseModel):
+    status: Literal["alive"] = "alive"
+
+
+class ReadinessResponse(BaseModel):
+    status: Literal["ready"] = "ready"
+    archive: Literal["database", "disabled"]
+
+
+class TrustSettings(BaseModel):
+    initial: float
+    minimum: float
+    maximum: float
+    threshold: float
+    decay: float
+    violation_weight: float
+    availability_weight: float
+    detector_weight: float
+    participation_reward: float
+    recovery_reward: float
+
+
+class RecoverySettings(BaseModel):
+    mode: Literal["observe_only", "approval_required", "autonomous_simulation"]
+    cooldown: int
+    retry_limit: int
+    timeout_ticks: int
+
+
+class OperationalLimits(BaseModel):
+    scenario_rounds: int
+    evaluations_per_minute_per_role: int
+    mutation_requests_per_minute_per_role: int
+    history_samples: int
+    audit_events: int
+
+
+class SettingsResponse(BaseModel):
+    storage: Literal["in_memory"]
+    archive: Literal["database", "disabled"]
+    trust: TrustSettings
+    recovery: RecoverySettings
+    network: NetworkSettings
+    limits: OperationalLimits
+    live_policy: Literal["rule"]
+
+
+class ArchivePage(BaseModel):
+    items: list[dict]
+    total: int
+    offset: int
+    limit: int
+    storage: Literal["database_archive"]

@@ -21,6 +21,7 @@ from ledgershield.service import Service
 
 from . import api
 from .database import archive, open_store
+from .models import LivenessResponse, ReadinessResponse
 from .security import RateLimiter, admin, configured_tokens, operator
 
 
@@ -83,6 +84,7 @@ async def lifespan(app):
     app.state.tokens = configured_tokens()
     app.state.limiter = RateLimiter()
     app.state.experiments = {}
+    app.state.archive_cache = {}
     app.state.store = open_store()
     if app.state.store is not None:
         app.state.experiments = {
@@ -239,12 +241,12 @@ async def root():
     return {"message": "LedgerShield", "api": "/api/v1", "docs": "/docs"}
 
 
-@app.get("/live", tags=["Health"])
+@app.get("/live", response_model=LivenessResponse, tags=["Health"])
 async def live():
     return {"status": "alive"}
 
 
-@app.get("/ready", tags=["Health"])
+@app.get("/ready", response_model=ReadinessResponse, tags=["Health"])
 async def ready(request: Request):
     try:
         store = request.app.state.store
@@ -311,11 +313,11 @@ async def stream(ws, versioned):
         await ws.close(code=1013)
         return
     ws.app.state.websocket_count += 1
-    await ws.accept()
     seq = 0
     seen_alerts, seen_actions = set(), {}
     current_service = None
     try:
+        await ws.accept()
         while True:
             svc = ws.app.state.service
             if svc is not current_service:
@@ -334,6 +336,8 @@ async def stream(ws, versioned):
                     if seen_actions.get(record["id"]) != record["status"]:
                         events.append(("healing", record))
                         seen_actions[record["id"]] = record["status"]
+                seen_alerts = {alert["id"] for alert in snapshot["alerts"]}
+                seen_actions = {record["id"]: record["status"] for record in snapshot["recovery"]}
                 for event_type, data in events:
                     seq += 1
                     await ws.send_json(
@@ -348,11 +352,12 @@ async def stream(ws, versioned):
                 await asyncio.wait_for(ws.receive_text(), timeout=1)
             except asyncio.TimeoutError:
                 pass
-    except (WebSocketDisconnect, RuntimeError):
+    except WebSocketDisconnect:
         pass
     except Exception:
         logger.error("websocket_service_error")
-        await ws.close(code=1011, reason="service_unavailable")
+        if ws.application_state.name != "DISCONNECTED":
+            await ws.close(code=1011, reason="service_unavailable")
     finally:
         ws.app.state.websocket_count -= 1
 

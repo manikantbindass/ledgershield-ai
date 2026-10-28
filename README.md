@@ -166,7 +166,7 @@ Actual measured comparison and limitations are in [validation results](docs/VALI
 
 ## Documentation
 
-[Setup](docs/setup-guide.md) · [SRS](docs/SRS.md) · [Architecture](docs/architecture.md) · [Consensus](docs/consensus.md) · [RL design](docs/rl-design.md) · [Security model](docs/security-model.md) · [Dashboard](docs/DASHBOARD.md) · [API](docs/API.md) · [Testing](docs/testing.md) · [Experiments](docs/experiments.md) · [Deployment](docs/deployment.md) · [Troubleshooting](docs/troubleshooting.md) · [Audit](docs/IMPLEMENTATION_AUDIT.md) · [Roadmap](docs/ROADMAP.md).
+[Requirement review](docs/REQUIREMENTS_REVIEW.md) · [Setup](docs/setup-guide.md) · [SRS](docs/SRS.md) · [Architecture](docs/architecture.md) · [Consensus](docs/consensus.md) · [RL design](docs/rl-design.md) · [Security model](docs/security-model.md) · [Dashboard](docs/DASHBOARD.md) · [API](docs/API.md) · [Testing](docs/testing.md) · [Experiments](docs/experiments.md) · [Deployment](docs/deployment.md) · [Troubleshooting](docs/troubleshooting.md) · [Audit](docs/IMPLEMENTATION_AUDIT.md) · [Roadmap](docs/ROADMAP.md).
 
 ## Verification
 
@@ -213,7 +213,7 @@ The legacy traffic scripts are not protocol-level Sybil/double-spend demonstrati
 
 - Implemented and locally verified: signed ledger, controlled simulator, evidence/trust/recovery pipeline, offline learning experiments and connected observatory.
 - Next: durable live-consensus resumption, richer failure experiments, deployment identity management and stronger distributed protocol modeling, according to the [roadmap](docs/ROADMAP.md).
-- **Screenshots:** will be captured from the completed local app and added here after the final phase. No mock screenshots are included.
+- **Screenshots:** pending because browser capture is disabled in the current Work environment. The user chose to continue checks without enabling it. Only real captures will be added when available; no mock screenshots are substituted.
 
 Maintained by [Manikant Kumar](https://github.com/manikantbindass). See [contribution guidance](CONTRIBUTING.md).
 

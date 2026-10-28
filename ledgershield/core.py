@@ -71,6 +71,13 @@ class Transaction:
         try:
             if len(bytes.fromhex(self.receiver)) != 32 or len(bytes.fromhex(self.sender)) != 32:
                 raise ValueError("invalid identity")
+            if (
+                self.receiver != bytes.fromhex(self.receiver).hex()
+                or self.sender != bytes.fromhex(self.sender).hex()
+                or len(self.signature) != 128
+                or self.signature != bytes.fromhex(self.signature).hex()
+            ):
+                raise ValueError("noncanonical identity or signature")
             Ed25519PublicKey.from_public_bytes(bytes.fromhex(self.sender)).verify(
                 bytes.fromhex(self.signature), canonical(self.payload())
             )
@@ -127,10 +134,19 @@ class Block:
 
 class LedgerState:
     def __init__(self, allocations=None, chain_id="ledgershield-local", genesis_timestamp=0):
+        if (
+            not isinstance(chain_id, str)
+            or not 1 <= len(chain_id) <= 100
+            or type(genesis_timestamp) is not int
+            or genesis_timestamp < 0
+        ):
+            raise Rejected("invalid_genesis")
         self.allocations = dict(allocations or {})
         for address, balance in self.allocations.items():
             try:
-                valid_address = len(bytes.fromhex(address)) == 32
+                valid_address = (
+                    len(bytes.fromhex(address)) == 32 and address == bytes.fromhex(address).hex()
+                )
             except (ValueError, TypeError):
                 valid_address = False
             if not valid_address or type(balance) is not int or balance < 0:
@@ -169,6 +185,10 @@ class LedgerState:
 
     def validate_block(self, block):
         last = self.chain[-1]
+        if type(block.index) is not int or block.index < 1:
+            raise Rejected("invalid_block_index")
+        if not isinstance(block.validator, str) or not block.validator:
+            raise Rejected("invalid_validator_identity")
         if block.hash != block.compute_hash():
             raise Rejected("tampered_block")
         if block.chain_id != self.chain_id or block.genesis_hash != self.chain[0].genesis_hash:

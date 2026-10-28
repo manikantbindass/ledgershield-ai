@@ -1,13 +1,9 @@
-# Roadmap
+# Roadmap and actual status
 
-1. Signed deterministic transfers, atomic ledger, configurable genesis and integrity checks.
-2. Seeded simulated transport, signed votes, fixed quorums, stalls and leader replacement.
-3. Real simulator telemetry, explainable anomaly evidence and bounded trust.
-4. Simulator-only recovery with observe-only default, approvals and rollback.
-5. Gymnasium environment, baselines, explicit DQN training and held-out evaluation.
-6. Connected dashboard, animated README, tests and reproducible startup.
-7. Versioned typed API, local operator/admin authorization, pagination, sanitized errors, request IDs, bounded evaluations and event envelopes.
+Implemented: canonical signed ledger; fixed-membership seeded consensus/fault simulator; real telemetry; rules/Isolation Forest evidence; bounded auditable trust; guarded simulator recovery; offline DQN and matched comparisons; versioned local-role API; ten-page dashboard; complete public research archive and migrations; container/readiness/monitoring configuration; layered tests and CI; developer documents.
 
-Future: durable storage, authenticated API, stronger protocol modeling, real networking and independent security review. Screenshots follow the user's final phase.
+Refinement audit: mode/expiry/resync safeguards, failed-attempt records, canonical input validation, valid-vote/delay accounting, complete incremental archiving, live-stream watchdog/race handling, schema coverage and experiment provenance. See REQUIREMENTS_REVIEW.md and VALIDATION.md for evidence.
 
-Phases 12–14 add layered QA, scoped type/format checks, transactional research archives/migrations, non-root container builds, readiness, optional monitoring and the developer documentation set. Real distributed consensus resumption and Internet deployment remain future work.
+Remaining research/deployment work: full distributed replica/locking/view-change implementation and proof; real P2P; durable live-consensus resumption; external identity/TLS/rotation; multi-worker coordination; broader attack/ML evaluation and independent security review. Redis is optional configuration, not an active application dependency. No complex Kafka/Kubernetes/federated/multi-chain extension is added merely for technology count.
+
+Screenshots remain pending by user choice while browser access is disabled. License selection remains with the owner. No production-readiness or RL-improvement claim is made.

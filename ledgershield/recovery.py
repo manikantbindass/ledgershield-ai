@@ -41,13 +41,19 @@ class Orchestrator:
 
     def handle(self, alert, policy=None):
         policy = policy or RulePolicy()
+        policy_error = None
         try:
             action = policy.propose(alert, self.network)
-        except Exception:
+        except Exception as exc:
             action = "observe"
+            policy_error = type(exc).__name__
         if action not in ACTIONS:
             action = "observe"
-        return self.propose(alert["node_id"], action, alert, digest([alert["id"], action]))
+            policy_error = "invalid_policy_action"
+        record = self.propose(alert["node_id"], action, alert, digest([alert["id"], action]))
+        if policy_error:
+            record["policy_error"] = policy_error
+        return record
 
     def propose(self, node_id, action, evidence, key):
         if key in self.records:
@@ -94,12 +100,26 @@ class Orchestrator:
         if self.network.tick - record["timestamp"] > self.config.timeout_ticks:
             record["status"] = "expired"
             return record
+        if self.config.mode == "observe_only":
+            record["status"] = "blocked_mode"
+            return record
         self.execute(record)
         return record
+
+    def expire_pending(self):
+        for record in self.audit:
+            if (
+                record["status"] == "pending_approval"
+                and self.network.tick - record["timestamp"] > self.config.timeout_ticks
+            ):
+                record["status"] = "expired"
 
     def execute(self, record):
         net, cfg = self.network, self.config
         name, action = record["node_id"], record["action"]
+        if name not in net.nodes:
+            record["status"] = "target_unavailable"
+            return
         node = net.nodes[name]
         pair = (name, action)
         record["safety_checks"].update(
@@ -157,6 +177,16 @@ class Orchestrator:
             elif action == "resync":
                 if node.behavior == "unavailable" or node.quarantined:
                     raise Rejected("resync_unreachable")
+                source = next(
+                    (
+                        peer
+                        for peer in net.validators
+                        if peer != name and net.reachable(peer, name) and net.deliver(peer, name)
+                    ),
+                    None,
+                )
+                if source is None:
+                    raise Rejected("resync_unreachable")
                 net.ledger.verify_chain()
                 node.height = len(net.ledger.chain) - 1
             elif action == "view_change":
@@ -169,6 +199,8 @@ class Orchestrator:
                     break
             if not recovered:
                 raise Rejected("recovery_timeout")
+            if action == "resync" and node.height != len(net.ledger.chain) - 1:
+                raise Rejected("resync_incomplete")
             record["status"] = "recovered"
             record["after"] = net.summary()
             record["duration_ticks"] = net.tick - record["timestamp"]
@@ -178,6 +210,8 @@ class Orchestrator:
             self.retries[pair] = 0
             self.trust.update(name, record["id"], "recovery", net.tick)
         except Exception as exc:
+            record["attempt_metrics"] = net.summary()
+            record["duration_ticks"] = net.tick - record["timestamp"]
             net.restore(before)
             record["status"] = "rolled_back"
             record["reason"] = exc.code if isinstance(exc, Rejected) else "recovery_failed"

@@ -59,3 +59,14 @@ API and Vite bind to loopback for local development. Same-origin proxy and origi
 ## Transactional archive extension
 
 SQLAlchemy and Alembic revision 0001 preserve public research_records in PostgreSQL or optional native SQLite. Batch archive writes use a database transaction and roll back on failure. Experiment listings reload at restart; the simulator itself remains volatile and does not resume from archived snapshots. Readiness includes database/schema checks. The volatile action and subsequent database write are not a distributed transaction; an archive failure is visible, returns 503 and pauses simulation. See deployment.md and security-model.md.
+
+
+## Refinement audit semantics
+
+Delay counters now add actual seeded message jitter and configured timeout waits under the serial simulator transport model. Consensus vote display counts only verified commit signatures. This remains simulated time rather than physical network or wall-clock benchmarking.
+
+Observe-only mode is rechecked at approval time; pending approvals expire as ticks advance. Resync requires a delivered message from a reachable validator and a target height matching the verified tip. Failed recovery captures attempted metrics before rollback, and policy exceptions retain sanitized fallback metadata. No external action is performed.
+
+Archive records include full blocks, transactions, alerts, trust updates and scenario runs in addition to snapshots/events/healing/experiments. Successful content fingerprints avoid redundant SQL rewrites; failure never advances that cache. Database-level archive pagination reports the full count. Snapshots remain bounded dashboard views and are not used for live consensus restart.
+
+The browser watchdog declares a silent stream offline after ten seconds, rejects malformed snapshots, and retains the last valid data. Initial HTTP cannot overwrite a newer stream snapshot. A successful mutation followed by a failed state refresh is explicitly distinguished from rejected execution.

@@ -1,5 +1,6 @@
 export function fixture() {
   const metrics = {
+    quorum: 3,
     height: 1,
     view: 0,
     stalls: 0,

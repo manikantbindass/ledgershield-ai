@@ -71,3 +71,8 @@ Block, transaction, alert, healing-action and experiment lists accept server-sid
 ## Archive and health extensions
 
 GET /live reports process liveness; GET /ready checks chain integrity and the configured archive/schema. Optional DATABASE_URL enables transactional public snapshots, audit/healing records and experiments. GET /api/v1/archive/{snapshot,event,healing,experiment} reads up to 1000 archived rows through pagination. Completed experiment listings reload on restart; live collections stay in_memory and start a new paused simulation. Database write failure returns sanitized 503 archive_unavailable, pauses the loop and warns that the action may have completed in memory. No distributed memory/database atomicity is claimed. Migrate explicitly before startup.
+
+
+## Re-audit changes
+
+Archive kinds also include block, transaction, alert, trust and scenario. Pagination executes in the database and reports the complete count, replacing the prior 1000-row retrieval cap. Settings, archive pages and process/readiness probes have explicit public Pydantic response models. Healing records may include sanitized policy_error and failed attempt_metrics. Observe-only now blocks previously pending approval execution; expiry is reflected without clicking approval. Metrics add transport_elapsed_ms; production delay includes jitter and timeout waits.

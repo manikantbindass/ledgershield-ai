@@ -33,9 +33,26 @@ class NetworkConfig:
     max_views: int = 4
 
     def __post_init__(self):
+        if any(
+            type(value) is not int
+            for value in (
+                self.seed,
+                self.node_count,
+                self.validator_count,
+                self.latency_ms,
+                self.jitter_ms,
+                self.timeout_ms,
+                self.max_views,
+            )
+        ):
+            raise Rejected("invalid_network_config")
         if not 4 <= self.validator_count <= self.node_count <= 100:
             raise Rejected("invalid_network_size", "4 <= validators <= nodes <= 100")
-        if not 0 <= self.loss <= 1 or min(self.latency_ms, self.jitter_ms) < 0:
+        if (
+            type(self.loss) not in (int, float)
+            or not 0 <= self.loss <= 1
+            or min(self.latency_ms, self.jitter_ms) < 0
+        ):
             raise Rejected("invalid_transport")
         if self.timeout_ms <= 0 or not 1 <= self.max_views <= 100:
             raise Rejected("invalid_timeout")
@@ -77,6 +94,7 @@ class Network:
                 "failed_requests",
                 "propagation_failures",
                 "vote_opportunities",
+                "transport_elapsed_ms",
             )
         }
         self.latencies = []
@@ -171,9 +189,11 @@ class Network:
             or delay > self.config.timeout_ms
         ):
             self.metrics["timeouts"] += 1
+            self.metrics["transport_elapsed_ms"] += self.config.timeout_ms
             stats["timeouts"] += 1
             return False
         self.metrics["delivered"] += 1
+        self.metrics["transport_elapsed_ms"] += delay
         stats["latency_ms"] = delay
         self.latencies.append(delay)
         return True
@@ -187,7 +207,7 @@ class Network:
             "view": view,
         }
 
-    def verify_certificate(self, block, votes, phase, view):
+    def certificate_voters(self, block, votes, phase, view):
         valid = set()
         payload = canonical(self.vote_payload(block, phase, view))
         for name, signature in votes.items():
@@ -200,12 +220,15 @@ class Network:
                 valid.add(name)
             except (InvalidSignature, ValueError, TypeError):
                 continue
-        return len(valid) >= self.quorum
+        return valid
+
+    def verify_certificate(self, block, votes, phase, view):
+        return len(self.certificate_voters(block, votes, phase, view)) >= self.quorum
 
     def round(self):
         self.tick += 1
         self.ledger.verify_chain()
-        start_messages = self.metrics["messages"]
+        start_transport = self.metrics["transport_elapsed_ms"]
         for _ in range(self.config.max_views):
             leader = self.validators[self.view % len(self.validators)]
             node = self.nodes[leader]
@@ -261,7 +284,7 @@ class Network:
                         self.transaction_records[tx.tx_hash].update(
                             status="committed", committed_at=self.tick
                         )
-                delay = (self.metrics["messages"] - start_messages) * self.config.latency_ms
+                delay = self.metrics["transport_elapsed_ms"] - start_transport
                 self.block_delays.append(delay)
                 for name in self.nodes:
                     if self.deliver(leader, name):
@@ -271,7 +294,7 @@ class Network:
                         self.metrics["propagation_failures"] += 1
                 self.last_round = {
                     "committed": True,
-                    "votes": len(commit),
+                    "votes": len(self.certificate_voters(block, commit, "commit", self.view)),
                     "leader": leader,
                     "height": block.index,
                     "delay_ms": delay,

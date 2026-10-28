@@ -102,3 +102,12 @@ def test_missing_migrations_fail_at_startup(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match="migrations are missing"):
         with TestClient(app):
             pass
+
+
+def test_archive_paginates_at_the_database_and_reports_full_total(database):
+    store = RecordStore(database)
+    store.put_many(("paging", str(i), {"index": i}) for i in range(12))
+    rows, total = store.page("paging", 10, 2)
+    assert total == 12 and len(rows) == 2
+    assert store.page("paging", 12, 2) == ([], 12)
+    store.close()

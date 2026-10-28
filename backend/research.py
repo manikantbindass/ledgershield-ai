@@ -62,11 +62,27 @@ def learning_report():
             {"episode": row["episode"], "reward": row["reward"], "loss": row.get("loss")}
             for row in local["training"]
         ]
+        evaluation = []
+        rows = local.get("evaluation", [])
+        for policy in sorted({row["policy"] for row in rows}):
+            group = [row for row in rows if row["policy"] == policy]
+            seeds = [row["seed"] for row in group]
+            evaluation.append(
+                {
+                    "policy": policy,
+                    "episodes": len(group),
+                    "seeds": [min(seeds), max(seeds)],
+                    "mean_reward": sum(row["reward"] for row in group) / len(group),
+                    "committed_transactions": sum(row["committed_transactions"] for row in group),
+                    "recoveries": sum(row["recoveries"] for row in group),
+                }
+            )
         result.update(
             run_id=f"offline-dqn-{local['train_seed']}-{len(training)}",
             source="Local offline experiment report",
             training=training,
             updates=local["updates"],
+            evaluation=evaluation,
             claim=local["claim"],
         )
     except (OSError, ValueError, KeyError, TypeError):

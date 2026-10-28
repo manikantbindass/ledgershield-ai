@@ -18,8 +18,19 @@ class ScenarioRuns:
             raise Rejected("scenario_already_active")
         net = self.service.network
         kind, target = payload.kind, payload.node_id
+        if kind not in (
+            "node_failure",
+            "delay",
+            "partition",
+            "suspicious_voting",
+            "sybil_like",
+            "conflicting_transactions",
+        ):
+            raise Rejected("invalid_scenario")
         if target not in net.nodes:
             raise Rejected("unknown_node")
+        if kind == "suspicious_voting" and not net.nodes[target].validator:
+            raise Rejected("scenario_requires_validator")
         if kind == "sybil_like" and len(net.nodes) > 97:
             raise Rejected("scenario_node_limit")
         self.saved = {
@@ -56,7 +67,7 @@ class ScenarioRuns:
         elif kind == "sybil_like":
             # Three extra identities remain non-voting; membership and quorum stay fixed.
             for i in range(3):
-                name = f"peer_{record['id'][:8]}_{i}"
+                name = f"peer_{len(self.runs)}_{i}"
                 key = demo_key(net.config.seed, name)
                 net.keys[name] = key
                 net.nodes[name] = Node(name, public_key(key), False, "malicious")

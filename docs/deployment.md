@@ -24,3 +24,6 @@ Containers drop application capabilities and run backend/static frontend as non-
 
 
 Validation evidence: CI commit 3699a4f successfully built both images and ran the real default Compose stack with PostgreSQL, readiness gates, static frontend proxy, signed transaction/block, approved recovery and archive verification. Monitoring profiles were configuration-validated; a running Grafana/Prometheus session was not claimed locally.
+
+
+Re-audit: the container CI job also starts monitoring/cache profiles, checks actual Prometheus scraping and Grafana dashboard provisioning over HTTP, and checks Redis PING. Complete block/transaction/alert/trust/scenario archives are retained separately from bounded snapshots. Successful content fingerprints reduce redundant writes; database pagination can traverse the complete archive. Local browser capture remains disabled and screenshots are pending by user choice.

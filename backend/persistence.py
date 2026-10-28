@@ -5,11 +5,23 @@ audit events, and public snapshots; it never stores private keys or tokens and
 does not claim to resume a live consensus machine after process restart.
 """
 
+import builtins
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import JSON, Column, DateTime, MetaData, String, Table, create_engine, select, text
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    MetaData,
+    String,
+    Table,
+    create_engine,
+    func,
+    select,
+    text,
+)
 from sqlalchemy.engine import Engine
 
 metadata = MetaData()
@@ -67,3 +79,19 @@ class RecordStore:
 
     def close(self) -> None:
         self.engine.dispose()
+
+    def page(self, kind: str, offset: int, limit: int) -> tuple[builtins.list[dict[str, Any]], int]:
+        with self.engine.connect() as connection:
+            total = int(
+                connection.execute(
+                    select(func.count()).select_from(records).where(records.c.kind == kind)
+                ).scalar_one()
+            )
+            result = connection.execute(
+                select(records.c.payload)
+                .where(records.c.kind == kind)
+                .order_by(records.c.created_at.desc(), records.c.record_id)
+                .offset(offset)
+                .limit(limit)
+            )
+            return [dict(row[0]) for row in result], total

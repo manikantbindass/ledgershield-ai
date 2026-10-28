@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "configuration": {
+    "implementation_sha256": "924a23aba7000e6ac522bea8a0f2dc786fbeba9621eadbd9bc8c1e2b602183ee",
     "seeds": [
       22000,
       22001,

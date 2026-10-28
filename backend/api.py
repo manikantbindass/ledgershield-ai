@@ -359,7 +359,7 @@ async def events(request: Request, page=Depends(pagination), q: str = Query("", 
     )
 
 
-@router.get("/settings", tags=["Settings"])
+@router.get("/settings", response_model=m.SettingsResponse, tags=["Settings"])
 async def settings(request: Request):
     svc = service(request)
     return {
@@ -467,14 +467,28 @@ async def stop_scenario(run_id: str, request: Request):
     return runs.stop() if record["status"] == "running" else record
 
 
-@router.get("/archive/{kind}", tags=["Evidence"])
+@router.get("/archive/{kind}", response_model=m.ArchivePage, tags=["Evidence"])
 async def archived(kind: str, request: Request, page=Depends(pagination)):
-    if kind not in ("snapshot", "event", "healing", "experiment"):
+    if kind not in (
+        "snapshot",
+        "event",
+        "healing",
+        "experiment",
+        "block",
+        "transaction",
+        "alert",
+        "trust",
+        "scenario",
+    ):
         raise HTTPException(404, detail="archive_kind_not_found")
     store = request.app.state.store
     if store is None:
         raise HTTPException(503, detail="archive_unconfigured")
-    rows = store.list(kind, 1000)
-    result = paginate(rows, *page)
-    result["storage"] = "database_archive"
-    return result
+    rows, total = store.page(kind, *page)
+    return {
+        "items": rows,
+        "total": total,
+        "offset": page[0],
+        "limit": page[1],
+        "storage": "database_archive",
+    }

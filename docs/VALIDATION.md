@@ -1,49 +1,40 @@
-# Local validation — 2026-10-28
+# Validation and refinement — 2026-10-28
 
-Validated on Windows with Python 3.12.4 and Node 24.14.1. Commands ran from the repository root, except npm commands in `frontend`.
+See [requirement-by-requirement review](REQUIREMENTS_REVIEW.md) for implemented scope and remaining research/deployment limitations. Tests demonstrate checked behavior; they are not a guarantee of zero defects.
 
-| Check | Result |
+## Latest local checks
+
+| Check | Actual result |
 | --- | --- |
-| `python -m pytest -q` | 60 tests passed, including versioned API, RBAC, pagination, rate limits, sanitized failures, events and prior ledger/simulator/learning regressions |
-| `npm run lint` | Passed |
-| `npm run build` | Passed, Vite 8.3.5 |
-| `npm audit --audit-level=low` | Zero known vulnerabilities at validation time |
-| `docker compose config --quiet` | Passed configuration validation; containers were not launched |
-| Animated header/footer XML | Both SVG documents parsed successfully |
-| `git diff --check` | Passed after source newline normalization |
-| Running API/proxy | Versioned health and dashboard proxy returned 200; anonymous mutation returned 401 |
-| Live workflow | Signed demo transfer committed; verified malicious-vote evidence produced an approval; approved quarantine recorded a verified recovery |
-| Browser | Observatory connected to live telemetry; no browser console errors observed after API v1 integration |
+| Full backend regression suite | 123 passed; one upstream Starlette TestClient transport deprecation warning |
+| Final changed-area API/archive/safety contracts | 37 passed after ordered snapshot metadata was added |
+| Frontend suite | 30 passed across five files |
+| Ruff lint and formatting | Passed for canonical backend, simulator, tests and migrations |
+| Mypy | Passed for public Pydantic models and persistence, the declared strict scope |
+| Frontend TypeScript / ESLint / Prettier / production build | Passed; strict TypeScript scope is the shared utility/API-boundary module |
+| npm audit | Zero known vulnerabilities at the time checked |
+| Compose default, monitoring/cache profiles and dev override | Configuration checks passed |
+| Real application subprocess E2E | Included in backend suite: signed transfer, block certificate, fault/alert, pending decision, approved recovery and WebSocket state |
+| Native live application | SQLite readiness, anonymous mutation 401, three committed transfers, three verified commit votes, approved recovery, complete archive pagination beyond 1000 rows, three event clients, 15 concurrent health reads and dashboard proxy passed |
+| Existing demo history | 20,876 public research records preserved before restarting the local API |
+| Matched application-level comparison | 36 actual runs completed with seeds 22000–22002, horizon 8, four scenarios and three policies; report includes implementation/checkpoint fingerprints |
+| Owned README animations | Both tracked SVGs parse and contain animation elements; tests verify their README references |
+| Screenshots / fresh browser visual QA | Pending by explicit user choice; local browser use is disabled in Work settings |
 
-The suite initially encountered sandbox temporary-directory and local async-client restrictions. Running it outside that restricted test environment completed successfully. One upstream Starlette warning notes a future TestClient HTTP transport migration from httpx; tests currently pass. HTTPX is only a test dependency. No remote CI outcome is claimed before GitHub runs the new workflow.
+Actual native diagnostic values, including 15-read sample timing, are in [local-verification.json](reaudit/local-verification.json). These are local diagnostics, not production latency benchmarks. Full simulator comparison and raw samples are [JSON](experiments/resilience-comparison.json) and [CSV](experiments/resilience-runs.csv). Undefined measurements remain null, and conditional detection/recovery timing is labeled.
 
-## Measured offline experiment
+## Important corrections found by this review
 
-Executed `python -m ledgershield.learning --episodes 40 --output artifacts/experiment`. Training completed **769 parameter updates**, saved a checkpoint, reloaded it for evaluation and recorded 36 held-out episodes: 12 per policy, with matching seeds/scenarios. No evaluation episodes enter training.
+The review fixed stale approval/mode and resync guards; valid-vote and serial transport delay accounting; noncanonical/malformed core input; missing complete trust/block archive history and redundant writes; unbounded stream deduplication/handshake slots; silent-stream and out-of-order frontend updates; and local RL training/evaluation provenance mixing. The dedicated regression tests retain these cases. A new archive pagination annotation initially shadowed the class's list method; type/import checks caught it and the corrected annotation passes the targeted suite. Snapshot validation also caught an incomplete test fixture (missing quorum); the fixture was corrected rather than weakening the production check.
 
-| Policy | Mean episode reward | Total committed evaluation transfers | Verified recoveries |
-| --- | ---: | ---: | ---: |
-| No healing | 35.253 | 240 | 0 |
-| Rule policy | 35.202 | 240 | 6 |
-| DQN | 34.253 | 240 | 0 |
+Earlier QA found the PostgreSQL driver raises TypeError directly for invalid JSON while SQLite wraps it in StatementError. The test accepts these two specific behaviors and still verifies batch rollback. A one-second subprocess readiness probe was replaced by a bounded startup deadline. Cancellation handling preserves AbortError across JavaScript realms. No meaningful failure was converted into a skipped/pass result.
 
-The DQN **did not outperform the no-healing baseline**. Each toy scenario alters one target node, leaving enough honest validators to commit; intervention can therefore cost reward without increasing throughput. These results establish that training, checkpointing and evaluation execute, not that the learned agent improves resilience. More difficult multi-fault scenarios, broader seeds and uncertainty estimates are needed before any improvement claim.
+## CI and container evidence
 
-The synthetic Isolation Forest evaluation used seed 202, separate from normal-only fitting at seed 101: 100 true positives, 20 false positives, 380 true negatives and 0 false negatives across 500 labeled synthetic rows. Those labels and feature distributions were constructed for this experiment; this is not a real-world attack-detection benchmark. Detector confidence is heuristic, not calibrated probability.
+[Baseline green CI af07684](https://github.com/manikantbindass/ledgershield-ai/actions/runs/40669811907) passed all seven jobs: backend tests/quality, PostgreSQL integration, frontend checks/build, Compose configuration and real container builds/startup/signed-ledger/approved-recovery/archive smoke testing. The refined workflow additionally starts monitoring/cache profiles, verifies actual Prometheus samples, provisioned Grafana panels and Redis PING. Final review-run status is available in [repository Actions](https://github.com/manikantbindass/ledgershield-ai/actions) and reported with task completion. Local Docker engine startup was unavailable; no local container run is claimed.
 
-Machine-readable results and all training episode rewards are in [measured-results.json](experiments/measured-results.json). Full generated experiment records, CSV datasets and model checkpoint remain ignored under `artifacts/` and can be recreated with the documented commands.
+## Historical ML evidence and limitations
 
-## Scope limits
+The recorded 40-episode training run performed 769 parameter updates. Its held-out mean rewards were 35.253 (no healing), 35.202 (rule), 34.253 (DQN), each with 240 committed evaluation transfers. The DQN did not outperform no healing. The synthetic detector's separate-seed evaluation counted 100 true positives, 20 false positives, 380 true negatives and zero false negatives. These are constructed toy distributions, not real-world detection accuracy or security benchmarks. See experiments.md for methods and sample/interval limitations.
 
-Everything is a local, centralized simulator with volatile state. Auth provides two local roles, not deployment identity management. No database persistence/migrations, real P2P, full PBFT view-change proof, production security, automatically deployed RL policy or online learning is claimed. Docker execution and remote GitHub Actions results are unverified in this local validation. Screenshots are deferred until the user's final phase.
-
-
-## Phase 9 validation
-
-The expanded backend suite passes 72 tests. The new frontend suite passes 22 tests; frontend lint and production build pass. Scenario tests cover all six kinds, bounded expiry, restored settings, fixed membership, conflicts and real API comparison records. Frontend tests cover ten routes and operational workflows including permissions, filters, pagination, approvals, comparisons, themes and offline states. See DASHBOARD.md for visual-check coverage and limitations. CI now includes frontend tests.
-
-
-Latest QA additions: the complete 80-test backend suite passed, seven reward/horizon boundary checks passed, three matched-runner tests passed, and all 25 frontend tests passed. Scoped Python/TypeScript checks, Ruff/Prettier formatting, frontend lint/build, Compose profile/config validation and npm audit (zero known vulnerabilities) passed. The initial process-E2E startup probe failed with a one-second read timeout; a bounded readiness deadline fixed it and the full backend suite then passed. The cancellation error test also found and fixed cross-realm AbortError handling. No test was skipped to obtain these results. Docker Desktop did not provide a working local Linux engine; actual image/stack/PostgreSQL verification is assigned to the explicit CI jobs and is not claimed locally.
-
-
-Remote CI on commit 3699a4f built both application images, launched the PostgreSQL/backend/static-frontend Compose stack successfully, and passed the real container proxy/readiness/signed-ledger/approved-recovery/database smoke test. Python quality checks, frontend checks/build and Compose validation also passed. The PostgreSQL integration suite found a test expectation mismatch: psycopg raises TypeError directly for an invalid JSON payload while SQLite wraps it in StatementError. The test now accepts those two specific driver behaviors while still asserting full batch rollback; final rerun status is reported with the completed task. Local container execution remains unavailable because the local Docker engine did not start.
+Live consensus remains a centralized, volatile simulator. The archive is durable research evidence, not a resumable distributed state machine. Shared local bearer roles are not deployment identity management. Fresh desktop/tablet accessibility certification, real P2P, formal PBFT, independent security review and owner-selected licensing remain outstanding. No screenshot or license grant has been fabricated.

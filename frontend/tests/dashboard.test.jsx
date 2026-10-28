@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
 import { fixture, server } from './fixtures'
 
@@ -11,14 +11,22 @@ class TestSocket {
   constructor() {
     TestSocket.instances.push(this)
     if (TestSocket.deliver)
+      this.heartbeat = setInterval(
+        () => this.onmessage?.({ data: JSON.stringify({ type: 'snapshot', data: data.snapshot }) }),
+        1000,
+      )
+    if (TestSocket.deliver)
       queueMicrotask(() =>
         this.onmessage?.({ data: JSON.stringify({ type: 'snapshot', data: data.snapshot }) }),
       )
   }
   close() {
+    clearInterval(this.heartbeat)
     this.onclose?.()
   }
 }
+
+afterEach(() => TestSocket.instances.forEach((socket) => socket.close()))
 
 beforeEach(() => {
   data = fixture()

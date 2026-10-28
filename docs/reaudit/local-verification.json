@@ -1,0 +1,20 @@
+{
+  "scope": "native local diagnostic, not a production benchmark",
+  "ready": true,
+  "database_archive": true,
+  "anonymous_mutation_status": 401,
+  "committed_transfers": 3,
+  "valid_commit_votes": 3,
+  "approved_recovery": "recovered",
+  "archive_beyond_1000_rows": true,
+  "matched_comparison_records": 3,
+  "simultaneous_event_clients": 3,
+  "successful_concurrent_reads": 15,
+  "read_median_ms": 16.0,
+  "read_max_ms": 32.0,
+  "dashboard_proxy": true,
+  "running": true,
+  "screenshots": "pending by user choice",
+  "captured_on": "2026-10-28",
+  "prior_public_records_preserved": 20876
+}

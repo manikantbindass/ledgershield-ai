@@ -26,6 +26,16 @@ class DetectionConfig:
     contamination: float = 0.05
     suppression_ticks: int = 5
 
+    def __post_init__(self):
+        if (
+            not 0 <= self.invalid_vote_rate <= 1
+            or not 0 <= self.timeout_rate <= 1
+            or not 0 < self.contamination <= 0.5
+            or type(self.suppression_ticks) is not int
+            or self.suppression_ticks < 1
+        ):
+            raise Rejected("invalid_detection_config")
+
 
 class Detector:
     def __init__(self, config=None, seed=101):
@@ -39,6 +49,22 @@ class Detector:
 
     @staticmethod
     def features(stats, timeout_ms):
+        required = ("invalid_votes", "votes", "timeouts", "attempts", "latency_ms")
+        if (
+            not isinstance(stats, dict)
+            or any(key not in stats for key in required)
+            or any(
+                type(stats[key]) not in (int, float)
+                or not np.isfinite(stats[key])
+                or stats[key] < 0
+                for key in required
+            )
+            or type(timeout_ms) not in (int, float)
+            or not np.isfinite(timeout_ms)
+            or timeout_ms <= 0
+            or stats["timeouts"] > stats["attempts"]
+        ):
+            raise Rejected("invalid_features")
         values = np.array(
             [
                 stats["invalid_votes"] / max(1, stats["invalid_votes"] + stats["votes"]),
@@ -109,6 +135,8 @@ class TrustConfig:
     recovery_reward: float = 1
 
     def __post_init__(self):
+        if any(not np.isfinite(value) for value in asdict(self).values()):
+            raise Rejected("invalid_trust_config")
         if (
             not self.minimum <= self.threshold <= self.initial <= self.maximum
             or not 0 <= self.decay <= 1
